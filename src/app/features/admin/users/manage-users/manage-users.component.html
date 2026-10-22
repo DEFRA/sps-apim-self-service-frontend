@@ -1,0 +1,206 @@
+<div class="govuk-grid-row">
+
+  <div class="govuk-grid-column-full">
+
+    <h1 class="govuk-heading-xl">
+      User Management
+    </h1>
+
+    @if (successMessage) {
+
+      <div
+        class="govuk-notification-banner
+               govuk-notification-banner--success">
+
+        <div
+          class="govuk-notification-banner__content">
+
+          <p
+            class="govuk-notification-banner__heading">
+
+            {{ successMessage }}
+
+          </p>
+
+        </div>
+
+      </div>
+
+    }
+
+    @if (loading) {
+
+      <p class="govuk-body">
+        Loading users...
+      </p>
+
+    } @else {
+
+      <table class="govuk-table">
+
+        <thead
+          class="govuk-table__head">
+
+          <tr
+            class="govuk-table__row">
+
+            <th
+              class="govuk-table__header">
+
+              Name
+
+            </th>
+
+            <th
+              class="govuk-table__header">
+
+              Email
+
+            </th>
+
+            <th
+              class="govuk-table__header">
+
+              Status
+
+            </th>
+
+            <th
+              class="govuk-table__header">
+
+              Roles
+
+            </th>
+
+            <th
+              class="govuk-table__header">
+
+              Actions
+
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody
+          class="govuk-table__body">
+
+          @for (
+            user of users;
+            track user.id
+          ) {
+
+            <tr
+              class="govuk-table__row">
+
+              <td
+                class="govuk-table__cell">
+
+                {{ user.displayName }}
+
+              </td>
+
+              <td
+                class="govuk-table__cell">
+
+                {{ user.email }}
+
+              </td>
+
+              <td
+                class="govuk-table__cell">
+
+                {{ user.status }}
+
+              </td>
+
+              <td
+                class="govuk-table__cell">
+
+                {{ user.roles?.join(', ') }}
+
+              </td>
+
+              <td
+                class="govuk-table__cell">
+
+                @if (
+                  user.status ===
+                  'PendingActivation'
+                ) {
+
+                  <button
+                    type="button"
+                    class="govuk-button govuk-button--secondary"
+                    (click)="reissueActivation(user)">
+
+                    Reissue Activation
+
+                  </button>
+
+                }
+
+                @if (
+                  user.status ===
+                  'Locked'
+                ) {
+
+                  <button
+                    type="button"
+                    class="govuk-button govuk-button--secondary"
+                    (click)="unlockUser(user)">
+
+                    Unlock
+
+                  </button>
+
+                }
+
+                @if (
+                  user.status ===
+                  'Active'
+                ) {
+
+                  <button
+                    type="button"
+                    class="govuk-button"
+                    (click)="disableUser(user)">
+
+                    Disable
+
+                  </button>
+
+                }
+
+                @if (
+                  user.status ===
+                  'Disabled'
+                ) {
+
+                  <button
+                    type="button"
+                    class="govuk-button govuk-button--secondary"
+                    (click)="enableUser(user)">
+
+                    Enable
+
+                  </button>
+
+                }
+
+              </td>
+
+            </tr>
+
+          }
+
+        </tbody>
+
+      </table>
+
+    }
+
+  </div>
+
+</div>

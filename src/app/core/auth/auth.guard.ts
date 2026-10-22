@@ -1,0 +1,2 @@
+import { inject } from '@angular/core'; import { CanActivateFn, Router } from '@angular/router'; import { AuthService } from './auth.service';
+export const authGuard:CanActivateFn=()=>{const a=inject(AuthService),r=inject(Router);return a.isAuthenticated()?true:r.createUrlTree(['/login']);}; export const adminGuard:CanActivateFn=()=>{const a=inject(AuthService),r=inject(Router);return a.isAdministrator()?true:r.createUrlTree(['/forbidden']);};

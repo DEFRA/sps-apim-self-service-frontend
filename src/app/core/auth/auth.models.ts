@@ -1,0 +1,1 @@
+export interface ProjectItem{id:string;name:string} export interface SessionResponse{id:string;email:string;displayName:string;roles:string[];projects:ProjectItem[]} export interface SignInRequest{email:string;password:string} export interface ChangePasswordRequest{currentPassword:string;newPassword:string} export interface CsrfResponse{token:string}

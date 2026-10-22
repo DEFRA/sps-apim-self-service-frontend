@@ -1,0 +1,1 @@
+import { Component } from '@angular/core'; import { RouterLink } from '@angular/router'; @Component({standalone:true,imports:[RouterLink],template:'<h1 class="govuk-heading-xl">You do not have permission to view this page</h1><p class="govuk-body"><a class="govuk-link" routerLink="/dashboard">Return to dashboard</a></p>'}) export class ForbiddenComponent{}

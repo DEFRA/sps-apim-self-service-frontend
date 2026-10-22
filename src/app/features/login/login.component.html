@@ -1,0 +1,180 @@
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+
+    <!-- Error summary -->
+    @if (loginFailed) {
+    <div class="govuk-error-summary" data-module="govuk-error-summary" tabindex="-1">
+
+      <div role="alert">
+        <h2 class="govuk-error-summary__title">
+          There is a problem
+        </h2>
+
+        <div class="govuk-error-summary__body">
+          <ul class="govuk-list govuk-error-summary__list">
+            <li>
+              <a href="#email">
+                Enter a valid email address and password
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    }
+
+    @if (accountActivated) {
+
+    <div class="govuk-notification-banner
+           govuk-notification-banner--success" role="region" aria-labelledby="activation-success-title">
+
+      <div class="govuk-notification-banner__header">
+
+        <h2 class="govuk-notification-banner__title" id="activation-success-title">
+
+          Success
+
+        </h2>
+
+      </div>
+
+      <div class="govuk-notification-banner__content">
+
+        <p class="govuk-notification-banner__heading">
+
+          Your account has been activated.
+          You can now sign in.
+
+        </p>
+
+      </div>
+
+    </div>
+
+    }
+
+    @if (passwordReset) {
+
+    <div class="govuk-notification-banner
+           govuk-notification-banner--success" role="region" aria-labelledby="password-reset-success-title">
+
+      <div class="govuk-notification-banner__header">
+
+        <h2 class="govuk-notification-banner__title" id="password-reset-success-title">
+
+          Success
+
+        </h2>
+
+      </div>
+
+      <div class="govuk-notification-banner__content">
+
+        <p class="govuk-notification-banner__heading">
+
+          Your password has been reset.
+          Sign in using your new password.
+
+        </p>
+
+      </div>
+
+    </div>
+
+    }
+    <!-- Page heading -->
+    <h1 class="govuk-heading-xl">
+      Sign in
+    </h1>
+
+    <p class="govuk-body-l">
+      Sign in to the APIM Self-Service Portal.
+    </p>
+
+    <!-- Login form -->
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+      <!-- Email -->
+      <div class="govuk-form-group" [class.govuk-form-group--error]="
+          form.controls.email.invalid &&
+          form.controls.email.touched
+        ">
+
+        <label class="govuk-label govuk-label--m" for="email">
+          Email address
+        </label>
+
+        @if (
+        form.controls.email.invalid &&
+        form.controls.email.touched
+        ) {
+        <p id="email-error" class="govuk-error-message">
+
+          <span class="govuk-visually-hidden">
+            Error:
+          </span>
+
+          Enter a valid email address
+        </p>
+        }
+
+        <input class="govuk-input govuk-input--width-30" [class.govuk-input--error]="
+            form.controls.email.invalid &&
+            form.controls.email.touched
+          " id="email" name="email" type="email" spellcheck="false" autocomplete="username" formControlName="email">
+      </div>
+
+      <!-- Password -->
+      <div class="govuk-form-group" [class.govuk-form-group--error]="
+          form.controls.password.invalid &&
+          form.controls.password.touched
+        ">
+
+        <label class="govuk-label govuk-label--m" for="password">
+          Password
+        </label>
+
+        @if (
+        form.controls.password.invalid &&
+        form.controls.password.touched
+        ) {
+        <p id="password-error" class="govuk-error-message">
+
+          <span class="govuk-visually-hidden">
+            Error:
+          </span>
+
+          Enter your password
+        </p>
+        }
+
+        <input class="govuk-input govuk-input--width-20" [class.govuk-input--error]="
+            form.controls.password.invalid &&
+            form.controls.password.touched
+          " id="password" name="password" type="password" autocomplete="current-password" formControlName="password">
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="govuk-button" data-module="govuk-button" [disabled]="submitting">
+
+        @if (submitting) {
+        Signing in
+        } @else {
+        Sign in
+        }
+
+      </button>
+      <p class="govuk-body">
+
+        <a class="govuk-link" routerLink="/forgot-password">
+
+          Forgotten your password?
+
+        </a>
+
+      </p>
+    </form>
+
+  </div>
+</div>

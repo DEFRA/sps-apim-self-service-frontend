@@ -1,0 +1,2 @@
+import { Injectable, inject } from '@angular/core'; import { HttpClient } from '@angular/common/http'; import { tap } from 'rxjs'; import { CsrfResponse } from './auth.models';
+@Injectable({providedIn:'root'}) export class CsrfService{private http=inject(HttpClient);private token:string|null=null;getToken(){return this.token} refresh(){return this.http.get<CsrfResponse>('/api/auth/csrf',{withCredentials:true}).pipe(tap(x=>this.token=x.token));} clear(){this.token=null;}}

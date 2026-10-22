@@ -1,0 +1,1 @@
+import { Component } from '@angular/core'; @Component({standalone:true,template:'<h1 class="govuk-heading-xl">Administration</h1><p class="govuk-body">Administrator area is ready for the next POC features.</p>'}) export class AdminComponent{}
