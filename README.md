@@ -8,6 +8,10 @@
 
 The dev proxy keeps browser API requests same-origin while forwarding /api and /health to ASP.NET. Authentication remains an HttpOnly Identity cookie and CSRF uses GET /api/auth/csrf + X-XSRF-TOKEN.
 
+## Tests
+
+Run the Angular unit tests with `npm test`. Tests use Angular's unit-test builder and Vitest.
+
 ## Deployment
 
 The Azure DevOps pipeline in [azure-pipelines.yml](./azure-pipelines.yml) builds and deploys the Angular SPA using a shared deployment template. The deployment environment and promotion rules are configured in the pipeline. The build runs `npm ci` and `npm run build`, then packages and deploys the SPA to the selected Linux App Service.

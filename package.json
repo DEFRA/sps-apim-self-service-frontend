@@ -1,7 +1,8 @@
 {
     "scripts": {
         "start": "ng serve --proxy-config proxy.conf.json",
-        "build": "ng build"
+        "build": "ng build",
+        "test": "node ./node_modules/@angular/cli/bin/ng.js test"
     },
     "dependencies": {
         "@angular/common": "^22.2.3",
@@ -19,7 +20,9 @@
         "@angular/build": "^22.2.3",
         "@angular/cli": "^22.2.3",
         "@angular/compiler-cli": "^22.2.3",
+        "jsdom": "^27.1.0",
         "sass": "^1.106.1",
-        "typescript": "~6.0.2"
+        "typescript": "~6.0.2",
+        "vitest": "^4.0.8"
     }
 }

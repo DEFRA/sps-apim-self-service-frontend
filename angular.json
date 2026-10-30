@@ -46,6 +46,13 @@
           },
 
           "defaultConfiguration": "development"
+        },
+
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "sps-apim-self-serve:build"
+          }
         }
       }
     }
