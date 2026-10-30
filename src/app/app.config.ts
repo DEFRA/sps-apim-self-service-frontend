@@ -20,6 +20,10 @@ import {
 } from './core/http/credentials.interceptor';
 
 import {
+  apiBaseUrlInterceptor
+} from './core/http/api-base-url.interceptor';
+
+import {
   authenticationResponseInterceptor
 } from './core/http/authentication-response.interceptor';
 
@@ -35,6 +39,8 @@ export const appConfig:
     provideHttpClient(
 
       withInterceptors([
+
+        apiBaseUrlInterceptor,
 
         // Adds cookies and CSRF header.
         credentialsInterceptor,
