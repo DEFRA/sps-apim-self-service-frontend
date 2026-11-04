@@ -2,8 +2,9 @@
 
 const fs = require('node:fs');
 const http = require('node:http');
-const https = require('node:https');
 const path = require('node:path');
+const { Readable } = require('node:stream');
+const { pipeline } = require('node:stream/promises');
 
 const contentTypes = new Map([
   ['.css', 'text/css; charset=utf-8'],
@@ -90,7 +91,6 @@ function createServer(
   backendUrl = parseBackendUrl(process.env.API_BASE_URL)
 ) {
   const webRoot = path.resolve(rootDirectory);
-  const proxy = backendUrl.protocol === 'https:' ? https : http;
 
   return http.createServer(async (request, response) => {
     let requestUrl;
@@ -117,60 +117,84 @@ function createServer(
         }
       }
 
-      headers.host = backendUrl.host;
+      delete headers.host;
+      headers['accept-encoding'] = 'identity';
       headers['x-forwarded-host'] = request.headers.host ?? '';
       headers['x-forwarded-proto'] = 'https';
 
-      const upstream = proxy.request(
-        {
-          hostname: backendUrl.hostname,
-          port: backendUrl.port || undefined,
-          method: request.method,
-          path: `${requestUrl.pathname}${requestUrl.search}`,
-          headers
-        },
-        upstreamResponse => {
-          const responseHeaders = { ...upstreamResponse.headers };
-          const responseConnectionTokens = new Set(
-            (responseHeaders.connection ?? '')
-              .split(',')
-              .map(header => header.trim().toLowerCase())
-              .filter(Boolean)
-          );
-
-          for (const name of Object.keys(responseHeaders)) {
-            if (isHopByHopHeader(name, responseConnectionTokens)) {
-              delete responseHeaders[name];
-            }
-          }
-
-          removeBackendAffinityCookies(responseHeaders);
-          response.writeHead(
-            upstreamResponse.statusCode ?? 502,
-            responseHeaders
-          );
-          upstreamResponse.pipe(response);
-        }
+      const controller = new AbortController();
+      const timeout = setTimeout(
+        () => controller.abort(new Error('Backend request timed out.')),
+        120_000
       );
-
-      upstream.setTimeout(120_000, () => {
-        upstream.destroy(new Error('Backend request timed out.'));
+      const hasBody = request.method !== 'GET' && request.method !== 'HEAD';
+      response.once('close', () => {
+        if (!response.writableEnded) {
+          controller.abort(new Error('Client disconnected.'));
+        }
       });
 
-      upstream.on('error', error => {
+      try {
+        const upstreamResponse = await fetch(
+          new URL(
+            `${requestUrl.pathname}${requestUrl.search}`,
+            backendUrl
+          ),
+          {
+            method: request.method,
+            headers,
+            body: hasBody ? Readable.toWeb(request) : undefined,
+            duplex: hasBody ? 'half' : undefined,
+            redirect: 'manual',
+            signal: controller.signal
+          }
+        );
+        const responseHeaders = {};
+        upstreamResponse.headers.forEach((value, name) => {
+          responseHeaders[name] = value;
+        });
+        const setCookies = upstreamResponse.headers.getSetCookie();
+
+        if (setCookies.length > 0) {
+          responseHeaders['set-cookie'] = setCookies;
+        }
+
+        const responseConnectionTokens = new Set(
+          (responseHeaders.connection ?? '')
+            .split(',')
+            .map(header => header.trim().toLowerCase())
+            .filter(Boolean)
+        );
+
+        for (const name of Object.keys(responseHeaders)) {
+          if (isHopByHopHeader(name, responseConnectionTokens)) {
+            delete responseHeaders[name];
+          }
+        }
+
+        removeBackendAffinityCookies(responseHeaders);
+        response.writeHead(upstreamResponse.status, responseHeaders);
+
+        if (upstreamResponse.body) {
+          await pipeline(Readable.fromWeb(upstreamResponse.body), response);
+        } else {
+          response.end();
+        }
+      } catch (error) {
         console.error('Backend proxy request failed:', error.message);
 
-        if (!response.headersSent) {
+        if (!response.headersSent && !response.destroyed) {
           response.writeHead(502, {
             'content-type': 'application/json; charset=utf-8'
           });
           response.end(JSON.stringify({ error: 'Backend unavailable.' }));
-        } else {
+        } else if (!response.destroyed) {
           response.destroy(error);
         }
-      });
+      } finally {
+        clearTimeout(timeout);
+      }
 
-      request.pipe(upstream);
       return;
     }
 
