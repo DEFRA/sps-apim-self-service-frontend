@@ -102,6 +102,24 @@ function createServer(
       return;
     }
 
+    if (requestUrl.pathname === '/health/frontend') {
+      if (request.method !== 'GET' && request.method !== 'HEAD') {
+        response.writeHead(405, { allow: 'GET, HEAD' }).end();
+        return;
+      }
+
+      response.writeHead(200, {
+        'cache-control': 'no-store',
+        'content-type': 'application/json; charset=utf-8'
+      });
+      response.end(
+        request.method === 'HEAD'
+          ? undefined
+          : JSON.stringify({ status: 'Healthy' })
+      );
+      return;
+    }
+
     if (isProxyPath(requestUrl.pathname)) {
       const connectionTokens = new Set(
         (request.headers.connection ?? '')

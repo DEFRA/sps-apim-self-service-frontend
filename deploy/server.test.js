@@ -144,3 +144,24 @@ test('serves runtime config without exposing the backend origin and falls back t
   );
   assert.equal(startupResponse.status, 404);
 });
+
+test('frontend health check responds without calling the backend', async t => {
+  const webRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'frontend-health-'));
+  const frontend = createServer(
+    webRoot,
+    new URL('https://backend.invalid')
+  );
+  const frontendPort = await listen(frontend);
+
+  t.after(async () => {
+    await new Promise(resolve => frontend.close(resolve));
+    await fs.rm(webRoot, { recursive: true, force: true });
+  });
+
+  const response = await fetch(
+    `http://127.0.0.1:${frontendPort}/health/frontend`
+  );
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { status: 'Healthy' });
+});
