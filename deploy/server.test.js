@@ -38,6 +38,7 @@ test('proxy preserves API requests and host-only auth cookies', async t => {
         method: request.method,
         path: request.url,
         host: request.headers.host,
+        forwardedProto: request.headers['x-forwarded-proto'],
         csrfToken: request.headers['x-xsrf-token'],
         cookie: request.headers.cookie,
         body: Buffer.concat(chunks).toString()
@@ -84,6 +85,7 @@ test('proxy preserves API requests and host-only auth cookies', async t => {
   assert.equal(receivedRequest.method, 'POST');
   assert.equal(receivedRequest.path, '/api/auth/sign-in?source=test');
   assert.equal(receivedRequest.host, `127.0.0.1:${backendPort}`);
+  assert.equal(receivedRequest.forwardedProto, 'https');
   assert.equal(
     receivedRequest.cookie,
     '__Host-sps-apim-selfserve-xsrf=csrf-cookie'

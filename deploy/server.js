@@ -119,8 +119,7 @@ function createServer(
 
       headers.host = backendUrl.host;
       headers['x-forwarded-host'] = request.headers.host ?? '';
-      headers['x-forwarded-proto'] =
-        request.headers['x-forwarded-proto'] ?? 'http';
+      headers['x-forwarded-proto'] = 'https';
 
       const upstream = proxy.request(
         {
