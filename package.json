@@ -2,7 +2,8 @@
     "scripts": {
         "start": "ng serve --proxy-config proxy.conf.json",
         "build": "ng build",
-        "test": "node ./node_modules/@angular/cli/bin/ng.js test"
+        "test": "node ./node_modules/@angular/cli/bin/ng.js test",
+        "test:proxy": "node --test deploy/server.test.js"
     },
     "dependencies": {
         "@angular/common": "^22.2.3",

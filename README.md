@@ -1,12 +1,12 @@
 # SPS APIM Self-Service Frontend
 
 ## Run
-1. For local development, the proxy forwards `/api` and `/health` to https://localhost:57719 (update proxy.conf.json to use a different local API).
+1. For local development, the Angular CLI proxy forwards `/api` and `/health` to https://localhost:57719 (update proxy.conf.json to use a different local API).
 2. Run `npm install`.
 3. Run `npm start`.
 4. Open the Angular URL printed by the CLI.
 
-The deployment startup script reads `API_BASE_URL` from the frontend App Service settings and writes it to a runtime configuration file. Set that setting to the API origin for each environment. Angular uses it for `/api` requests; the value is visible in the browser, so it must not contain credentials or other secrets. The API must allow credentialed CORS requests from the frontend origin. Authentication remains an HttpOnly Identity cookie and CSRF uses GET `/api/auth/csrf` + `X-XSRF-TOKEN`.
+The frontend App Service startup server reads `API_BASE_URL` as the backend origin and proxies `/api` and `/health` requests server-to-server. The Azure DevOps deployment pipeline tests this proxy before packaging the frontend. The Angular app uses relative paths and exposes no backend URL in browser runtime configuration. This keeps authentication and antiforgery cookies first-party on the frontend hostname, avoiding browser third-party-cookie restrictions. Keep `API_BASE_URL` set to the HTTPS backend origin; it must not contain credentials.
 
 ## Tests
 
