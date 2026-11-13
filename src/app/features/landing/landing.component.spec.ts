@@ -40,6 +40,12 @@ describe('LandingComponent', () => {
     expect(text).toContain('Manage onboarding requests');
     expect(text).toContain('Start API onboarding');
     expect(text).toContain('Sign in to the ICC admin area');
+    expect(
+      fixture.nativeElement.querySelector('section[aria-labelledby="onboard-heading"]')
+    ).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('section[aria-labelledby="manage-heading"]')
+    ).not.toBeNull();
   });
 
   it('explains how to request access and limits ICC admin access', () => {
