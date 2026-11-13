@@ -13,6 +13,7 @@ import {
   catchError,
   Observable,
   of,
+  shareReplay,
   switchMap,
   tap
 } from 'rxjs';
@@ -41,6 +42,9 @@ export class AuthService {
   private readonly state =
     signal<SessionResponse | null>(null);
 
+  private initialisation:
+    Observable<SessionResponse | null> | undefined;
+
   readonly session =
     this.state.asReadonly();
 
@@ -62,17 +66,26 @@ export class AuthService {
   initialise():
     Observable<SessionResponse | null> {
 
-    return this.loadSession().pipe(
+    if (!this.initialisation) {
+      this.initialisation = this.loadSession().pipe(
 
-      catchError(() => {
+        catchError(() => {
 
-        this.clearSession();
+          this.clearSession();
 
-        return of(null);
+          return of(null);
 
-      })
+        }),
 
-    );
+        shareReplay({
+          bufferSize: 1,
+          refCount: false
+        })
+      );
+    }
+
+    return this.initialisation;
+
   }
 
   // -------------------------------------------------------

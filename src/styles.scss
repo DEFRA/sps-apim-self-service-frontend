@@ -11,6 +11,19 @@ body {
   margin: 0;
 }
 
+.app-govuk-header {
+  background-color: govuk-colour("blue");
+}
+
+.app-prototype-notice {
+  display: flex;
+  align-items: center;
+  gap: govuk-spacing(2);
+  margin: govuk-spacing(2) 0;
+  padding-bottom: govuk-spacing(2);
+  border-bottom: 1px solid $govuk-border-colour;
+}
+
 .app-user-bar {
   display: flex;
   align-items: center;
@@ -59,6 +72,35 @@ body {
 
 .govuk-service-navigation__wrapper {
   margin: 0;
+}
+
+.app-admin-menu {
+  position: relative;
+}
+
+.app-admin-menu__summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.app-admin-menu__summary::-webkit-details-marker {
+  display: none;
+}
+
+.app-admin-menu__items {
+  position: absolute;
+  z-index: 1;
+  min-width: 12rem;
+  margin: 0;
+  padding: govuk-spacing(2);
+  border: 1px solid $govuk-border-colour;
+  background-color: govuk-colour("white");
+  list-style: none;
+}
+
+.app-admin-menu__items .govuk-service-navigation__link {
+  display: block;
+  padding: govuk-spacing(2);
 }
 
 .app-service-account {

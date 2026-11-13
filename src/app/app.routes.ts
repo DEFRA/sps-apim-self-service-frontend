@@ -14,6 +14,19 @@ export const routes: Routes = [
     // ---------------------------------------------------------
 
     {
+        path: '',
+        pathMatch: 'full',
+
+        loadComponent: () =>
+            import(
+                './features/landing/landing.component'
+            ).then(
+                module =>
+                    module.LandingComponent
+            )
+    },
+
+    {
         path: 'login',
 
         loadComponent: () =>
@@ -159,16 +172,6 @@ export const routes: Routes = [
                 module =>
                     module.ForbiddenComponent
             )
-    },
-
-    // ---------------------------------------------------------
-    // Default
-    // ---------------------------------------------------------
-
-    {
-        path: '',
-        redirectTo: 'login',
-        pathMatch: 'full'
     },
 
     // THIS MUST BE LAST.

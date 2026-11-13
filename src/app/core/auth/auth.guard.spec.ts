@@ -5,6 +5,7 @@ import {
   Router,
   RouterStateSnapshot
 } from '@angular/router';
+import { of } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from './auth.service';
 import { adminGuard, authGuard } from './auth.guard';
@@ -12,12 +13,15 @@ import { adminGuard, authGuard } from './auth.guard';
 describe('authentication guards', () => {
   const authenticated = vi.fn(() => false);
   const administrator = vi.fn(() => false);
+  const initialise = vi.fn(() => of(null));
 
   beforeEach(() => {
     authenticated.mockReset();
     administrator.mockReset();
+    initialise.mockReset();
     authenticated.mockReturnValue(false);
     administrator.mockReturnValue(false);
+    initialise.mockReturnValue(of(null));
 
     TestBed.configureTestingModule({
       providers: [
@@ -25,6 +29,7 @@ describe('authentication guards', () => {
         {
           provide: AuthService,
           useValue: {
+            initialise,
             isAuthenticated: authenticated,
             isAdministrator: administrator
           }
@@ -39,21 +44,36 @@ describe('authentication guards', () => {
     );
   }
 
-  it('allows authenticated users and redirects signed-out users to login', () => {
+  it('waits for session restoration before allowing or redirecting users', () => {
     const router = TestBed.inject(Router);
+    let result: boolean | ReturnType<Router['parseUrl']> | undefined;
 
-    expect(runGuard(authGuard)).toEqual(router.parseUrl('/login'));
+    initialise.mockImplementation(() => {
+      authenticated.mockReturnValue(true);
+      return of(null);
+    });
+    runGuard(authGuard).subscribe(value => result = value);
+    expect(result).toBe(true);
+    expect(initialise).toHaveBeenCalledOnce();
 
-    authenticated.mockReturnValue(true);
-    expect(runGuard(authGuard)).toBe(true);
+    authenticated.mockReturnValue(false);
+    runGuard(authGuard).subscribe(value => result = value);
+    expect(result).toEqual(router.parseUrl('/login'));
   });
 
-  it('redirects non-administrators and allows administrators', () => {
+  it('waits for session restoration before checking administrator access', () => {
     const router = TestBed.inject(Router);
+    let result: boolean | ReturnType<Router['parseUrl']> | undefined;
 
-    expect(runGuard(adminGuard)).toEqual(router.parseUrl('/forbidden'));
+    initialise.mockImplementation(() => {
+      administrator.mockReturnValue(true);
+      return of(null);
+    });
+    runGuard(adminGuard).subscribe(value => result = value);
+    expect(result).toBe(true);
 
-    administrator.mockReturnValue(true);
-    expect(runGuard(adminGuard)).toBe(true);
+    administrator.mockReturnValue(false);
+    runGuard(adminGuard).subscribe(value => result = value);
+    expect(result).toEqual(router.parseUrl('/forbidden'));
   });
 });

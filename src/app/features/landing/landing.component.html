@@ -1,0 +1,94 @@
+<p class="govuk-caption-l">API Management</p>
+<h1 class="govuk-heading-xl">API Management Self-Service Portal</h1>
+<p class="govuk-body">
+  Use this service to onboard APIs into Azure API Management or manage existing API
+  onboarding requests.
+</p>
+
+<h2 class="govuk-heading-l">Choose what you need to do</h2>
+<div class="govuk-grid-row">
+  <section class="govuk-grid-column-one-half">
+    <div class="landing-card">
+      <h3 class="govuk-heading-m">Onboard an API</h3>
+      <p class="govuk-body">
+        Submit a new API onboarding request and track the request through validation,
+        approval and deployment.
+      </p>
+      <p class="govuk-body">You can:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>provide the required API configuration</li>
+        <li>upload and validate an OpenAPI specification</li>
+        <li>save a draft and return later</li>
+        <li>track onboarding progress</li>
+      </ul>
+      <a
+        class="govuk-button"
+        [routerLink]="auth.session() ? '/dashboard' : '/login'">
+        Start API onboarding
+      </a>
+    </div>
+  </section>
+
+  <section class="govuk-grid-column-one-half">
+    <div class="landing-card">
+      <strong class="govuk-tag govuk-tag--blue">ICC team</strong>
+      <h3 class="govuk-heading-m">Manage onboarding requests</h3>
+      <p class="govuk-body">
+        Review API onboarding requests, assign an owner and update the status visible
+        to delivery teams.
+      </p>
+      <p class="govuk-body">Authorised ICC team members can:</p>
+      <ul class="govuk-list govuk-list--bullet">
+        <li>view submitted requests</li>
+        <li>update validation and approval status</li>
+        <li>record actions and review notes</li>
+        <li>mark deployments as completed or failed</li>
+      </ul>
+      @if (auth.isAdministrator()) {
+        <a class="govuk-button govuk-button--secondary" routerLink="/admin">
+          Manage
+        </a>
+      } @else if (auth.session()) {
+        <p class="govuk-body">ICC admin access is available to administrators only.</p>
+      } @else {
+        <a class="govuk-button govuk-button--secondary" routerLink="/login">
+          Sign in to the ICC admin area
+        </a>
+      }
+    </div>
+  </section>
+</div>
+
+<hr class="govuk-section-break govuk-section-break--l govuk-section-break--visible">
+
+<section aria-labelledby="request-access-heading">
+  <h2 class="govuk-heading-l" id="request-access-heading">Request access to the portal</h2>
+  <p class="govuk-body">
+    You need a local portal account before you can use the API onboarding or ICC admin
+    journey.
+  </p>
+  <p class="govuk-body">To request access, you will need to provide:</p>
+  <ul class="govuk-list govuk-list--bullet">
+    <li>first name</li>
+    <li>last name</li>
+    <li>email address</li>
+    <li>why you need access to the portal</li>
+    <li>whether you need to onboard a new API or manage an existing API</li>
+  </ul>
+  <p class="govuk-body">
+    <a class="govuk-button govuk-button--secondary"
+      href="mailto:globalengcapabilityservice@defra.gov.uk?subject=Request%20access%20to%20the%20portal">
+      Request access by email
+    </a>
+  </p>
+  <p class="govuk-body">
+    Alternatively, email
+    <a class="govuk-link" href="mailto:globalengcapabilityservice@defra.gov.uk">
+      globalengcapabilityservice&#64;defra.gov.uk
+    </a>.
+  </p>
+  <div class="govuk-inset-text">
+    ICC admin access should only be granted to authorised ICC team members with a
+    business need to manage onboarding requests.
+  </div>
+</section>

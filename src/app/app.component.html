@@ -5,7 +5,7 @@
 <!-- =======================                       -->
 <!-- ===================================================== -->
 
-<div class="govuk-header" data-module="govuk-header">
+<div class="govuk-header app-govuk-header" data-module="govuk-header">
 
   <div class="govuk-header__container govuk-width-container">
 
@@ -41,6 +41,7 @@
 <!-- SERVICE NAVIGATION                                    -->
 <!-- ===================================================== -->
 
+@if (auth.session()) {
 <section class="govuk-service-navigation" aria-label="Service information" data-module="govuk-service-navigation">
 
   <div class="govuk-width-container">
@@ -48,16 +49,20 @@
     <div class="govuk-service-navigation__container">
 
       <span class="govuk-service-navigation__service-name">
-        <a class="govuk-service-navigation__link" routerLink="/dashboard">
-          APIM Self-Service Portal
+        <a class="govuk-service-navigation__link" routerLink="/">
+          API Management Self-Service Portal
         </a>
       </span>
-
-      @if (auth.session(); as session) {
 
       <nav class="govuk-service-navigation__wrapper" aria-label="Service navigation">
 
         <ul class="govuk-service-navigation__list">
+
+          <li class="govuk-service-navigation__item">
+            <a class="govuk-service-navigation__link" routerLink="/">
+              Home
+            </a>
+          </li>
 
           <li class="govuk-service-navigation__item">
             <a class="govuk-service-navigation__link" routerLink="/dashboard">
@@ -66,18 +71,24 @@
           </li>
 
           @if (auth.isAdministrator()) {
-          <li class="govuk-service-navigation__item">
-            <a class="govuk-service-navigation__link" routerLink="/admin">
-              Admin
-            </a>
-          </li>
-          <li>
-            <a class="govuk-link" routerLink="/admin/users">
-
-              User Management
-
-            </a>
-
+          <li class="govuk-service-navigation__item app-admin-menu">
+            <details>
+              <summary class="govuk-service-navigation__link app-admin-menu__summary">
+                Admin
+              </summary>
+              <ul class="app-admin-menu__items">
+                <li>
+                  <a class="govuk-service-navigation__link" routerLink="/admin">
+                    Administration
+                  </a>
+                </li>
+                <li>
+                  <a class="govuk-service-navigation__link" routerLink="/admin/users">
+                    User Management
+                  </a>
+                </li>
+              </ul>
+            </details>
           </li>
           }
 
@@ -85,19 +96,15 @@
 
       </nav>
 
+      @if (auth.session(); as session) {
       <div class="app-service-account">
-
         <span class="app-service-account__user">
-          Signed in as
-          <strong>{{ session.displayName }}</strong>
+          Signed in as <strong>{{ session.displayName }}</strong>
         </span>
-
         <button type="button" class="app-service-account__sign-out" (click)="signOut()">
           Sign out
         </button>
-
       </div>
-
       }
 
     </div>
@@ -105,36 +112,7 @@
   </div>
 
 </section>
-
-<!-- ===================================================== -->
-<!-- PHASE BANNER                                          -->
-<!-- ===================================================== -->
-
-<div class="govuk-width-container">
-
-  <div class="govuk-phase-banner">
-
-    <p class="govuk-phase-banner__content">
-
-      <strong class="govuk-tag govuk-phase-banner__content__tag">
-
-        Alpha
-
-      </strong>
-
-      <span class="govuk-phase-banner__text">
-
-        This is a new service.
-        Your feedback will help us to improve it.
-
-      </span>
-
-    </p>
-
-  </div>
-
-</div>
-
+}
 
 <!-- ===================================================== -->
 <!-- MAIN CONTENT                                          -->

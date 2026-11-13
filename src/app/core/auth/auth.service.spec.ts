@@ -116,4 +116,19 @@ describe('AuthService', () => {
     expect(service.session()).toBeNull();
     expect(service.isAuthenticated()).toBe(false);
   });
+
+  it('shares the startup session request across concurrent initialisation calls', () => {
+    let firstResult: SessionResponse | null | undefined;
+    let secondResult: SessionResponse | null | undefined;
+
+    service.initialise().subscribe(value => firstResult = value);
+    service.initialise().subscribe(value => secondResult = value);
+
+    const request = http.expectOne('/api/auth/session');
+    request.flush(session);
+
+    expect(firstResult).toEqual(session);
+    expect(secondResult).toEqual(session);
+    expect(service.isAuthenticated()).toBe(true);
+  });
 });
