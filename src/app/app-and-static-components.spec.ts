@@ -4,7 +4,6 @@ import { of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppComponent } from './app.component';
 import { AuthService } from './core/auth/auth.service';
-import { AdminComponent } from './features/admin/admin.component';
 import { ForgotPasswordConfirmationComponent } from './features/account/forgot-password/forgot-password-confirmation.component';
 import { DashboardComponent } from './features/dashboard/dashboard.component';
 import { ForbiddenComponent } from './features/forbidden/forbidden.component';
@@ -89,6 +88,9 @@ describe('AppComponent', () => {
     expect(
       adminMenu.querySelector('a[href="/admin/users"]')?.textContent
     ).toContain('User Management');
+    expect(
+      adminMenu.querySelector('a[href="/admin/users/create"]')?.textContent
+    ).toContain('Create user');
   });
 
   it('signs out and navigates to the login page', () => {
@@ -160,15 +162,6 @@ describe('DashboardComponent', () => {
 });
 
 describe('simple page components', () => {
-  it('renders the administration page', async () => {
-    TestBed.configureTestingModule({ imports: [AdminComponent] });
-    await TestBed.compileComponents();
-    const fixture = TestBed.createComponent(AdminComponent);
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.textContent).toContain('Administration');
-  });
-
   it('renders the forbidden message and dashboard link', async () => {
     TestBed.configureTestingModule({
       imports: [ForbiddenComponent],

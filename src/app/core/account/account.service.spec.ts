@@ -44,7 +44,7 @@ describe('AccountService', () => {
     const body = {
       email: 'new@example.com',
       displayName: 'New User',
-      role: 'User' as const,
+      role: 'API Developer' as const,
       projectIds: [],
       reason: 'Project access',
       approvalReference: 'REQ-123'
@@ -79,6 +79,22 @@ describe('AccountService', () => {
     );
   });
 
+  it('submits access requests after refreshing CSRF', () => {
+    const body = {
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      email: 'ada@example.com',
+      requestType: 'Onboard a new API' as const,
+      reason: 'I need to onboard the service.'
+    };
+
+    expectCsrfPost(
+      service.submitAccessRequest(body),
+      '/api/account/access-request',
+      body
+    );
+  });
+
   it('completes password resets after refreshing CSRF', () => {
     const body = {
       userId: 'user-1',
@@ -104,8 +120,56 @@ describe('AccountService', () => {
     expect(users).toEqual([]);
   });
 
+  it('retrieves access requests and dashboard counts', () => {
+    service.getAccessRequests().subscribe();
+    const requests = http.expectOne('/api/admin/access-requests');
+    expect(requests.request.method).toBe('GET');
+    requests.flush([]);
+
+    service.getAccessRequest('request-1').subscribe();
+    const request = http.expectOne('/api/admin/access-requests/request-1');
+    expect(request.request.method).toBe('GET');
+    request.flush({ id: 'request-1' });
+
+    service.getAdminDashboardSummary().subscribe();
+    const summary = http.expectOne('/api/admin/dashboard-summary');
+    expect(summary.request.method).toBe('GET');
+    summary.flush({
+      portalUserCount: 1,
+      accessRequestsAwaitingReviewCount: 0,
+      activeOnboardingRequestsCount: null
+    });
+  });
+
+  it('records an access decision and sends its notification email with CSRF protection', () => {
+    const decision = {
+      outcome: 'Approved' as const,
+      role: 'API Developer',
+      projectId: 'project-1',
+      decisionNote: 'Approved by ICC.'
+    };
+    service.recordAccessRequestDecision('request-1', decision).subscribe();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
+    const decisionRequest = http.expectOne({
+      method: 'POST',
+      url: '/api/admin/access-requests/request-1/decision'
+    });
+    expect(decisionRequest.request.body).toEqual(decision);
+    decisionRequest.flush({ id: 'request-1', status: 'Approved' });
+
+    service.sendAccessDecisionEmail('request-1').subscribe();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
+    const emailRequest = http.expectOne({
+      method: 'POST',
+      url: '/api/admin/access-requests/request-1/decision-email'
+    });
+    expect(emailRequest.request.body).toEqual({});
+    emailRequest.flush(null);
+  });
+
   it('reissues activation with its configured reason', () => {
     service.reissueActivation('user-1').subscribe();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
     const request = http.expectOne({
       method: 'POST',
       url: '/api/admin/users/user-1/activation/reissue'
@@ -117,6 +181,7 @@ describe('AccountService', () => {
 
   it('unlocks a user', () => {
     service.unlockUser('user-1').subscribe();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
     const request = http.expectOne({
       method: 'POST',
       url: '/api/admin/users/user-1/unlock'
@@ -131,9 +196,41 @@ describe('AccountService', () => {
     ['enableUser', '/api/admin/users/user-1/enable', { reason: 'Enabled by administrator' }]
   ] as const)('%s sends its action reason', (method, url, body) => {
     service[method]('user-1').subscribe();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
     const request = http.expectOne({ method: 'POST', url });
 
     expect(request.request.body).toEqual(body);
-    request.flush({});
+    request.flush(null);
+  });
+
+  it('loads project choices and existing user access', () => {
+    service.getProjects().subscribe();
+    const projectsRequest = http.expectOne('/api/admin/users/projects');
+    expect(projectsRequest.request.method).toBe('GET');
+    projectsRequest.flush([]);
+
+    service.getUserAccess('user-1').subscribe();
+    const accessRequest = http.expectOne('/api/admin/users/user-1/access');
+    expect(accessRequest.request.method).toBe('GET');
+    accessRequest.flush({});
+  });
+
+  it('updates user access after refreshing CSRF', () => {
+    const body = {
+      role: 'Read only',
+      projectIds: [],
+      status: 'Disabled',
+      reason: 'Access review'
+    };
+
+    service.updateUserAccess('user-1', body).subscribe();
+    http.expectOne('/api/auth/csrf').flush({ token: 'csrf-token' });
+    const request = http.expectOne({
+      method: 'PUT',
+      url: '/api/admin/users/user-1/access'
+    });
+
+    expect(request.request.body).toEqual(body);
+    request.flush(null);
   });
 });

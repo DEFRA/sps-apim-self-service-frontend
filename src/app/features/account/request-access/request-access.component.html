@@ -1,0 +1,211 @@
+<div class="govuk-grid-row">
+  <div class="govuk-grid-column-two-thirds">
+    <p class="govuk-back-link-wrapper">
+      <a class="govuk-back-link" routerLink="/">Back</a>
+    </p>
+
+    @if (submitted) {
+      <div class="govuk-panel govuk-panel--confirmation">
+        <h1 class="govuk-panel__title">Access request submitted</h1>
+        <div class="govuk-panel__body">
+          The ICC team will review your request
+        </div>
+      </div>
+      <h2 class="govuk-heading-m">What happens next</h2>
+      <p class="govuk-body">
+        The ICC team will review your details and contact you about your request.
+        Submitting this form does not create an account or grant access.
+      </p>
+      <p class="govuk-body">
+        If you need help, email
+        <a class="govuk-link" href="mailto:giointegrationcapabilitycentre@defra.gov.uk">
+          giointegrationcapabilitycentre&#64;defra.gov.uk
+        </a>.
+      </p>
+      <a class="govuk-button" routerLink="/">Return to the portal</a>
+    } @else {
+      <p class="govuk-caption-l">API Management Self-Service Portal</p>
+      <h1 class="govuk-heading-xl">Request access to the portal</h1>
+      <p class="govuk-body">
+        Provide your details and explain why you need access.
+        The ICC team will review your request.
+      </p>
+
+      @if (validationFailed) {
+        <div class="govuk-error-summary" role="alert">
+          <h2 class="govuk-error-summary__title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <p class="govuk-body">Check the information you entered:</p>
+            <ul class="govuk-list govuk-error-summary__list">
+              @if (form.controls.firstName.invalid) {
+                <li><a href="#firstName">Enter your first name</a></li>
+              }
+              @if (form.controls.lastName.invalid) {
+                <li><a href="#lastName">Enter your last name</a></li>
+              }
+              @if (form.controls.email.hasError('required')) {
+                <li><a href="#email">Enter your email address</a></li>
+              } @else if (form.controls.email.invalid) {
+                <li><a href="#email">Enter an email address in the correct format</a></li>
+              }
+              @if (form.controls.requestType.invalid) {
+                <li><a href="#requestType">Choose why you need access</a></li>
+              }
+              @if (form.controls.reason.invalid) {
+                <li><a href="#reason">Tell us why you need access</a></li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+
+      @if (requestFailed) {
+        <div class="govuk-error-summary" role="alert">
+          <h2 class="govuk-error-summary__title">There is a problem</h2>
+          <div class="govuk-error-summary__body">
+            <p class="govuk-body">
+              We could not submit your request. Try again, or email
+              <a class="govuk-link" href="mailto:giointegrationcapabilitycentre@defra.gov.uk">
+                the ICC team
+              </a>.
+            </p>
+          </div>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="govuk-form-group"
+          [class.govuk-form-group--error]="form.controls.firstName.invalid && form.controls.firstName.touched">
+          <label class="govuk-label govuk-label--m" for="firstName">First name</label>
+          @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+            <p class="govuk-error-message" id="firstName-error">
+              <span class="govuk-visually-hidden">Error:</span> Enter your first name
+            </p>
+          }
+          <input
+            class="govuk-input govuk-input--width-20"
+            [class.govuk-input--error]="form.controls.firstName.invalid && form.controls.firstName.touched"
+            id="firstName"
+            name="firstName"
+            autocomplete="given-name"
+            maxlength="100"
+            [attr.aria-describedby]="form.controls.firstName.invalid && form.controls.firstName.touched ? 'firstName-error' : null"
+            formControlName="firstName">
+        </div>
+
+        <div class="govuk-form-group"
+          [class.govuk-form-group--error]="form.controls.lastName.invalid && form.controls.lastName.touched">
+          <label class="govuk-label govuk-label--m" for="lastName">Last name</label>
+          @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+            <p class="govuk-error-message" id="lastName-error">
+              <span class="govuk-visually-hidden">Error:</span> Enter your last name
+            </p>
+          }
+          <input
+            class="govuk-input govuk-input--width-20"
+            [class.govuk-input--error]="form.controls.lastName.invalid && form.controls.lastName.touched"
+            id="lastName"
+            name="lastName"
+            autocomplete="family-name"
+            maxlength="100"
+            [attr.aria-describedby]="form.controls.lastName.invalid && form.controls.lastName.touched ? 'lastName-error' : null"
+            formControlName="lastName">
+        </div>
+
+        <div class="govuk-form-group"
+          [class.govuk-form-group--error]="form.controls.email.invalid && form.controls.email.touched">
+          <label class="govuk-label govuk-label--m" for="email">Email address</label>
+          <div class="govuk-hint" id="email-hint">Use your organisation email address.</div>
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <p class="govuk-error-message" id="email-error">
+              <span class="govuk-visually-hidden">Error:</span>
+              @if (form.controls.email.hasError('required')) {
+                Enter your email address
+              } @else {
+                Enter an email address in the correct format
+              }
+            </p>
+          }
+          <input
+            class="govuk-input govuk-input--width-20"
+            [class.govuk-input--error]="form.controls.email.invalid && form.controls.email.touched"
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            maxlength="254"
+            [attr.aria-describedby]="form.controls.email.invalid && form.controls.email.touched ? 'email-hint email-error' : 'email-hint'"
+            formControlName="email">
+        </div>
+
+        <fieldset class="govuk-fieldset govuk-!-margin-bottom-6">
+          <legend class="govuk-fieldset__legend govuk-fieldset__legend--m" id="requestType">
+            Why do you need access to the portal?
+          </legend>
+          <div class="govuk-hint">Select the option that best describes your requirement.</div>
+          @if (form.controls.requestType.invalid && validationFailed) {
+            <p class="govuk-error-message">
+              <span class="govuk-visually-hidden">Error:</span> Choose why you need access
+            </p>
+          }
+          <div class="govuk-radios">
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="request-onboard" type="radio"
+                name="requestType" value="Onboard a new API" formControlName="requestType">
+              <label class="govuk-label govuk-radios__label" for="request-onboard">Onboard a new API</label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="request-existing" type="radio"
+                name="requestType" value="Manage an existing API" formControlName="requestType">
+              <label class="govuk-label govuk-radios__label" for="request-existing">Manage an existing API</label>
+            </div>
+            <div class="govuk-radios__item">
+              <input class="govuk-radios__input" id="request-icc" type="radio"
+                name="requestType" value="Manage onboarding requests as an ICC administrator" formControlName="requestType">
+              <label class="govuk-label govuk-radios__label" for="request-icc">
+                Manage onboarding requests as an ICC administrator
+              </label>
+              <div class="govuk-hint govuk-radios__hint">
+                This option is restricted to authorised ICC team members. Requests are reviewed before access is granted.
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="govuk-form-group"
+          [class.govuk-form-group--error]="form.controls.reason.invalid && form.controls.reason.touched">
+          <label class="govuk-label govuk-label--m" for="reason">Tell us why you need access</label>
+          <div class="govuk-hint" id="reason-hint">
+            Include the API or service name, delivery team and the work you need to complete.
+          </div>
+          @if (form.controls.reason.invalid && form.controls.reason.touched) {
+            <p class="govuk-error-message" id="reason-error">
+              <span class="govuk-visually-hidden">Error:</span> Tell us why you need access
+            </p>
+          }
+          <textarea
+            class="govuk-textarea"
+            [class.govuk-textarea--error]="form.controls.reason.invalid && form.controls.reason.touched"
+            id="reason"
+            name="reason"
+            rows="5"
+            maxlength="3000"
+            [attr.aria-describedby]="form.controls.reason.invalid && form.controls.reason.touched ? 'reason-hint reason-error' : 'reason-hint'"
+            formControlName="reason"></textarea>
+        </div>
+
+        <button class="govuk-button" type="submit" [disabled]="submitting">
+          {{ submitting ? 'Submitting request...' : 'Submit access request' }}
+        </button>
+      </form>
+
+      <h2 class="govuk-heading-m">Request access by email</h2>
+      <p class="govuk-body">
+        You can also email
+        <a class="govuk-link" href="mailto:giointegrationcapabilitycentre@defra.gov.uk">
+          giointegrationcapabilitycentre&#64;defra.gov.uk
+        </a>.
+      </p>
+    }
+  </div>
+</div>

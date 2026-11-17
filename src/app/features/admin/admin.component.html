@@ -1,0 +1,99 @@
+<section class="admin-page" aria-labelledby="admin-heading">
+  <header class="admin-page__header">
+    <strong class="govuk-tag govuk-tag--purple">WIP Page</strong>
+    <h1 class="govuk-heading-xl" id="admin-heading">ICC administration</h1>
+    <p class="govuk-body-l admin-page__intro">
+      Manage API onboarding requests, portal users and project access.
+    </p>
+  </header>
+
+  <section aria-labelledby="admin-tasks-heading">
+    <h2 class="govuk-heading-l" id="admin-tasks-heading">Manage the service</h2>
+
+    @if (loadFailed) {
+      <div class="govuk-error-summary" role="alert">
+        <h2 class="govuk-error-summary__title">We could not load the dashboard counts</h2>
+        <div class="govuk-error-summary__body">
+          <p class="govuk-body">Try refreshing the page. If the problem continues, contact your service administrator.</p>
+        </div>
+      </div>
+    }
+
+    <div class="govuk-grid-row admin-page__cards">
+      <div class="govuk-grid-column-one-third">
+        <section class="app-admin-card" aria-labelledby="onboarding-card-heading">
+          <h3 class="govuk-heading-m" id="onboarding-card-heading">
+            Onboarding requests
+          </h3>
+          <p class="govuk-body">
+            Review requests, assign owners and update validation, approval and
+            deployment status.
+          </p>
+          <p class="govuk-body app-admin-card__status">
+            @if (summary?.activeOnboardingRequestsCount !== null && summary?.activeOnboardingRequestsCount !== undefined) {
+              <strong>{{ summary.activeOnboardingRequestsCount }}</strong> active requests
+            } @else {
+              Onboarding request tracking is not connected
+            }
+          </p>
+        </section>
+      </div>
+
+      <div class="govuk-grid-column-one-third">
+        <section class="app-admin-card" aria-labelledby="access-card-heading">
+          <h3 class="govuk-heading-m" id="access-card-heading">Access requests</h3>
+          <p class="govuk-body">
+            Review requests for local portal accounts and assign the appropriate role.
+          </p>
+          <p class="govuk-body app-admin-card__status">
+            @if (summary) {
+              <strong>{{ summary.accessRequestsAwaitingReviewCount }}</strong> awaiting review
+            } @else if (loading) {
+              Loading count
+            } @else {
+              Count unavailable
+            }
+          </p>
+          <p class="govuk-body">
+            <a class="govuk-link govuk-link--no-visited-state" routerLink="/admin/access-requests">
+              View access requests
+            </a>
+          </p>
+        </section>
+      </div>
+
+      <div class="govuk-grid-column-one-third">
+        <section class="app-admin-card" aria-labelledby="users-card-heading">
+          <h3 class="govuk-heading-m" id="users-card-heading">
+            <a class="govuk-link govuk-link--no-visited-state" routerLink="/admin/users">
+              Users and access
+            </a>
+          </h3>
+          <p class="govuk-body">
+            View users, project access and roles, and enable or disable access.
+          </p>
+          <p class="govuk-body app-admin-card__status">
+            @if (summary) {
+              <strong>{{ summary.portalUserCount }}</strong> portal users
+            } @else if (loading) {
+              Loading count
+            } @else {
+              Count unavailable
+            }
+          </p>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="admin-page__responsibilities" aria-labelledby="responsibilities-heading">
+    <h2 class="govuk-heading-l" id="responsibilities-heading">Admin responsibilities</h2>
+    <ul class="govuk-list govuk-list--bullet">
+      <li>grant only the minimum access required</li>
+      <li>confirm project access with an authorised project owner</li>
+      <li>record a reason for access changes</li>
+      <li>disable access when no longer required</li>
+      <li>maintain an auditable history of changes</li>
+    </ul>
+  </section>
+</section>

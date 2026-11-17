@@ -71,6 +71,14 @@ describe('AuthService', () => {
     expect(service.isAdministrator()).toBe(true);
   });
 
+  it('recognises the prototype ICC Administrator role', () => {
+    service.loadSession().subscribe();
+    http.expectOne('/api/auth/session')
+      .flush({ ...session, roles: ['ICC Administrator'] });
+
+    expect(service.isAdministrator()).toBe(true);
+  });
+
   it('clears the session after signing out', () => {
     service.loadSession().subscribe();
     http.expectOne('/api/auth/session').flush(session);

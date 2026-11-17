@@ -10,6 +10,14 @@ import {
 } from '@angular/common';
 
 import {
+  FormsModule
+} from '@angular/forms';
+
+import {
+  RouterLink
+} from '@angular/router';
+
+import {
   AccountService
 } from '../../../../core/account/account.service';
 
@@ -23,11 +31,15 @@ import {
   standalone: true,
 
   imports: [
-    CommonModule
+    CommonModule,
+    FormsModule,
+    RouterLink
   ],
 
   templateUrl:
-    './manage-users.component.html'
+    './manage-users.component.html',
+  styleUrl:
+    './manage-users.component.scss'
 })
 export class ManageUsersComponent
   implements OnInit {
@@ -40,9 +52,24 @@ export class ManageUsersComponent
 
   users: UserSummary[] = [];
 
+  filteredUsers: UserSummary[] = [];
+
+  searchText = '';
+
+  statusFilter = 'All';
+
+  appliedSearchText = '';
+
+  appliedStatusFilter = 'All';
+
   loading = true;
 
+  loadFailed = false;
+
   successMessage:
+    string | null = null;
+
+  errorMessage:
     string | null = null;
 
   ngOnInit(): void {
@@ -67,8 +94,10 @@ export class ManageUsersComponent
           );
 
           this.users = [...users];
+          this.applyFilters();
 
           this.loading = false;
+          this.loadFailed = false;
 
           this.cdr.detectChanges();
 
@@ -79,6 +108,7 @@ export class ManageUsersComponent
           console.error(error);
 
           this.loading = false;
+          this.loadFailed = true;
 
           this.cdr.detectChanges();
 
@@ -88,95 +118,31 @@ export class ManageUsersComponent
 
   }
 
-  reissueActivation(
-    user: UserSummary
-  ): void {
+  applyFilters(): void {
+    this.appliedSearchText = this.searchText.trim().toLocaleLowerCase();
+    this.appliedStatusFilter = this.statusFilter;
+    this.filteredUsers = this.users.filter(user => {
+      const matchesSearch =
+        !this.appliedSearchText ||
+        user.displayName.toLocaleLowerCase().includes(this.appliedSearchText) ||
+        user.email.toLocaleLowerCase().includes(this.appliedSearchText);
+      const matchesStatus =
+        this.appliedStatusFilter === 'All' ||
+        user.status === this.appliedStatusFilter;
 
-    this.accountService
-      .reissueActivation(
-        user.id
-      )
-      .subscribe({
-
-        next: () => {
-
-          this.successMessage =
-            `Activation email reissued for ${user.email}`;
-
-          this.cdr.detectChanges();
-
-        }
-
-      });
-
+      return matchesSearch && matchesStatus;
+    });
   }
 
-  unlockUser(
-    user: UserSummary
-  ): void {
-
-    this.accountService
-      .unlockUser(
-        user.id
-      )
-      .subscribe({
-
-        next: () => {
-
-          this.successMessage =
-            'Account unlocked';
-
-          this.loadUsers();
-
-        }
-
-      });
-
+  displayStatus(status: string): string {
+    switch (status) {
+      case 'Active':
+        return 'Enabled';
+      case 'PendingActivation':
+        return 'Pending activation';
+      default:
+        return status;
+    }
   }
 
-  disableUser(
-    user: UserSummary
-  ): void {
-
-    this.accountService
-      .disableUser(
-        user.id
-      )
-      .subscribe({
-
-        next: () => {
-
-          this.successMessage =
-            'Account disabled';
-
-          this.loadUsers();
-
-        }
-
-      });
-
-  }
-
-  enableUser(
-    user: UserSummary
-  ): void {
-
-    this.accountService
-      .enableUser(
-        user.id
-      )
-      .subscribe({
-
-        next: () => {
-
-          this.successMessage =
-            'Account enabled';
-
-          this.loadUsers();
-
-        }
-
-      });
-
-  }
 }

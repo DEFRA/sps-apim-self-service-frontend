@@ -1,3 +1,81 @@
-.govuk-button {
+@use "govuk-frontend/dist/govuk" as *;
+
+.govuk-back-link-wrapper {
+  margin-bottom: govuk-spacing(3);
+}
+
+.users-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: govuk-spacing(4);
+  margin-bottom: govuk-spacing(2);
+  padding: govuk-spacing(4);
+  background-color: govuk-colour("light-grey");
+}
+
+.users-filter .govuk-form-group {
   margin-bottom: 0;
+}
+
+.users-filter__search {
+  flex: 1;
+  max-width: 22rem;
+}
+
+.users-filter__status {
+  min-width: 12rem;
+}
+
+.users-filter__submit {
+  margin: 0 0 2px;
+  white-space: nowrap;
+}
+
+.users-count {
+  margin-bottom: govuk-spacing(2);
+}
+
+.users-table-wrapper {
+  overflow-x: auto;
+}
+
+.users-table {
+  min-width: 42rem;
+}
+
+.users-table__user span {
+  display: block;
+  font-weight: normal;
+  overflow-wrap: anywhere;
+}
+
+.users-table__action {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.users-table__action:hover {
+  color: $govuk-link-hover-colour;
+}
+
+.users-table__action:focus {
+  @include govuk-focused-text;
+}
+
+@include govuk-media-query($until: tablet) {
+  .users-filter {
+    display: block;
+  }
+
+  .users-filter .users-filter__search,
+  .users-filter .users-filter__status {
+    max-width: none;
+    margin-bottom: govuk-spacing(3);
+  }
 }

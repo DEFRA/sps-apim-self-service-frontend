@@ -6,7 +6,7 @@ import { AuthService } from '../../core/auth/auth.service';
   standalone: true,
   imports: [RouterLink],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.scss'
+  styleUrl: './landing.component.css'
 })
 export class LandingComponent {
   constructor(readonly auth: AuthService) {}

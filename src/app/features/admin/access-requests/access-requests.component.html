@@ -1,0 +1,251 @@
+<section class="access-requests" aria-labelledby="access-requests-heading">
+  @if (requestId) {
+    <p class="govuk-back-link-wrapper">
+      <a class="govuk-back-link" routerLink="/admin/access-requests">Back to access requests</a>
+    </p>
+    <span class="govuk-caption-l">ICC administration</span>
+    <h1 class="govuk-heading-xl" id="access-requests-heading">Review access request</h1>
+
+    @if (loading) {
+      <p class="govuk-body" role="status">Loading request details</p>
+    } @else if (loadFailed || !request) {
+      <div class="govuk-error-summary" role="alert">
+        <h2 class="govuk-error-summary__title">We could not load this access request</h2>
+        <p class="govuk-body">The request may no longer be available. Return to the access request list and try again.</p>
+      </div>
+    } @else {
+      <div class="govuk-inset-text">
+        Approving creates a pending-activation account and sends an activation email. The requester will need to set their password before they can sign in.
+      </div>
+
+      <p>
+        <strong class="govuk-tag"
+          [class.govuk-tag--yellow]="request.status === 'AwaitingReview'"
+          [class.govuk-tag--green]="request.status === 'Approved'"
+          [class.govuk-tag--red]="request.status === 'Rejected'"
+          [class.govuk-tag--blue]="request.status === 'MoreInformationRequested'">
+          {{ statusLabel(request.status) }}
+        </strong>
+      </p>
+
+      @if (errorMessage) {
+        <div class="govuk-error-summary" role="alert">
+          <h2 class="govuk-error-summary__title">There is a problem</h2>
+          <p class="govuk-body">{{ errorMessage }}</p>
+        </div>
+      }
+
+      @if (successMessage) {
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="status">
+          <div class="govuk-notification-banner__content">
+            <h2 class="govuk-notification-banner__heading">Decision recorded</h2>
+            <p class="govuk-body">{{ successMessage }}</p>
+          </div>
+        </div>
+      }
+
+      <dl class="govuk-summary-list">
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Applicant</dt>
+          <dd class="govuk-summary-list__value">{{ request.firstName }} {{ request.lastName }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Email address</dt>
+          <dd class="govuk-summary-list__value">
+            <a class="govuk-link" [href]="'mailto:' + request.email">{{ request.email }}</a>
+          </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Access requested</dt>
+          <dd class="govuk-summary-list__value">{{ request.requestType }}</dd>
+        </div>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Submitted</dt>
+          <dd class="govuk-summary-list__value">{{ request.submittedAtUtc | date:'d MMMM y' }}</dd>
+        </div>
+        @if (request.status !== 'AwaitingReview') {
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Decision</dt>
+            <dd class="govuk-summary-list__value">{{ statusLabel(request.status) }}</dd>
+          </div>
+          @if (request.assignedRole) {
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Portal role</dt>
+              <dd class="govuk-summary-list__value">{{ request.assignedRole }}</dd>
+            </div>
+          }
+          @if (request.projectName) {
+            <div class="govuk-summary-list__row">
+              <dt class="govuk-summary-list__key">Project access</dt>
+              <dd class="govuk-summary-list__value">{{ request.projectName }}</dd>
+            </div>
+          }
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Decision note</dt>
+            <dd class="govuk-summary-list__value">{{ request.decisionNote }}</dd>
+          </div>
+          <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">Decision email</dt>
+            <dd class="govuk-summary-list__value">
+              @if (request.decisionEmailSentAtUtc) {
+                Sent {{ request.decisionEmailSentAtUtc | date:'d MMMM y, h:mm a' }}
+              } @else {
+                Not sent
+              }
+            </dd>
+          </div>
+        }
+      </dl>
+
+      <h2 class="govuk-heading-m">Reason for access</h2>
+      <p class="govuk-body access-requests__reason">{{ request.reason }}</p>
+
+      @if (request.status === 'AwaitingReview') {
+        <form (ngSubmit)="recordDecision()" novalidate>
+          <fieldset class="govuk-fieldset" aria-describedby="outcome-hint">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+              What is the outcome?
+            </legend>
+            <div id="outcome-hint" class="govuk-hint">
+              The requester will be emailed when you record the decision.
+            </div>
+            <div class="govuk-radios">
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="outcome-approved" name="outcome"
+                  type="radio" value="Approved" [(ngModel)]="outcome">
+                <label class="govuk-label govuk-radios__label" for="outcome-approved">Approve access</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="outcome-rejected" name="outcome"
+                  type="radio" value="Rejected" [(ngModel)]="outcome">
+                <label class="govuk-label govuk-radios__label" for="outcome-rejected">Reject access</label>
+              </div>
+              <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="outcome-more-info" name="outcome"
+                  type="radio" value="MoreInformationRequested" [(ngModel)]="outcome">
+                <label class="govuk-label govuk-radios__label" for="outcome-more-info">Request more information</label>
+              </div>
+            </div>
+          </fieldset>
+
+          @if (outcome === 'Approved') {
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-label--m" for="assigned-role">Portal role</label>
+              <select class="govuk-select" id="assigned-role" name="assigned-role" [(ngModel)]="selectedRole">
+                @for (role of roles; track role) {
+                  <option [value]="role">{{ role }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-label--m" for="assigned-project">Project access (optional)</label>
+              <select class="govuk-select" id="assigned-project" name="assigned-project" [(ngModel)]="selectedProjectId">
+                <option value="">No project access</option>
+                @for (project of projects; track project.id) {
+                  <option [value]="project.id">{{ project.name }}</option>
+                }
+              </select>
+            </div>
+          }
+
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-label--m" for="decision-note">Decision note</label>
+            <div id="decision-note-hint" class="govuk-hint">
+              This note will be included in the email to the requester.
+            </div>
+            <textarea class="govuk-textarea" id="decision-note" name="decision-note"
+              rows="5" maxlength="1000" required aria-describedby="decision-note-hint"
+              [(ngModel)]="decisionNote"></textarea>
+          </div>
+
+          <button class="govuk-button" type="submit" [disabled]="savingDecision || sendingDecisionEmail">
+            @if (savingDecision) {
+              Recording decision
+            } @else {
+              Record decision
+            }
+          </button>
+        </form>
+      } @else if (!request.decisionEmailSentAtUtc) {
+        <button class="govuk-button" type="button" (click)="sendDecisionEmail()"
+          [disabled]="sendingDecisionEmail">
+          @if (sendingDecisionEmail) {
+            Sending email
+          } @else {
+            Retry decision email
+          }
+        </button>
+      }
+    }
+  } @else {
+    <p class="govuk-back-link-wrapper">
+      <a class="govuk-back-link" routerLink="/admin">Back</a>
+    </p>
+    <span class="govuk-caption-l">ICC administration</span>
+    <h1 class="govuk-heading-xl" id="access-requests-heading">Portal access requests</h1>
+    <p class="govuk-body-l">Review requests for local accounts and portal roles.</p>
+    <div class="govuk-inset-text">
+      Account and role approval must be completed by an authorised ICC administrator. This page displays request details only.
+    </div>
+
+    @if (loading) {
+      <p class="govuk-body" role="status">Loading access requests</p>
+    } @else if (loadFailed) {
+      <div class="govuk-error-summary" role="alert">
+        <h2 class="govuk-error-summary__title">We could not load access requests</h2>
+        <p class="govuk-body">Try refreshing the page. If the problem continues, contact your service administrator.</p>
+      </div>
+    } @else if (requests.length === 0) {
+      <h2 class="govuk-heading-m">No access requests</h2>
+      <p class="govuk-body">New requests will appear here when someone submits the request access form.</p>
+    } @else {
+      <h2 class="govuk-heading-m">Portal access requests</h2>
+      <div class="govuk-table-wrapper">
+        <table class="govuk-table">
+          <caption class="govuk-table__caption govuk-table__caption--m govuk-visually-hidden">
+            Portal access requests awaiting review
+          </caption>
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th class="govuk-table__header" scope="col">Applicant</th>
+              <th class="govuk-table__header" scope="col">Access required</th>
+              <th class="govuk-table__header" scope="col">Submitted</th>
+              <th class="govuk-table__header" scope="col">Status</th>
+              <th class="govuk-table__header" scope="col"><span class="govuk-visually-hidden">Action</span></th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            @for (item of requests; track item.id) {
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell">
+                  {{ item.firstName }} {{ item.lastName }}<br>
+                  <span class="govuk-!-font-size-16">{{ item.email }}</span>
+                </td>
+                <td class="govuk-table__cell">{{ item.requestType }}</td>
+                <td class="govuk-table__cell">{{ item.submittedAtUtc | date:'d MMMM y' }}</td>
+                <td class="govuk-table__cell">
+                  <strong class="govuk-tag"
+                    [class.govuk-tag--yellow]="item.status === 'AwaitingReview'"
+                    [class.govuk-tag--green]="item.status === 'Approved'"
+                    [class.govuk-tag--red]="item.status === 'Rejected'"
+                    [class.govuk-tag--blue]="item.status === 'MoreInformationRequested'">
+                    {{ statusLabel(item.status) }}
+                  </strong>
+                </td>
+                <td class="govuk-table__cell">
+                  <a class="govuk-link" [routerLink]="['/admin/access-requests', item.id]">
+                    {{ item.status === 'AwaitingReview' ? 'Review' : 'View' }}<span class="govuk-visually-hidden"> {{ item.firstName }} {{ item.lastName }}'s request</span>
+                  </a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <p class="govuk-body">
+        <a class="govuk-link" routerLink="/admin/users">View existing portal users</a>
+      </p>
+    }
+  }
+</section>

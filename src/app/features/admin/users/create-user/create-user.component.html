@@ -2,66 +2,94 @@
 
     <div class="govuk-grid-column-two-thirds">
 
-        @if (failed) {
-
-        <div class="govuk-error-summary" data-module="govuk-error-summary">
-
-            <div role="alert">
-
-                <h2 class="govuk-error-summary__title">
-                    There is a problem
-                </h2>
-
-                <div class="govuk-error-summary__body">
-
-                    <ul class="govuk-list govuk-error-summary__list">
-
-                        <li>
-                            The user account could not be created.
-                        </li>
-
-                    </ul>
-
-                </div>
-
+        @if (created) {
+        <div class="govuk-panel govuk-panel--confirmation">
+            <h1 class="govuk-panel__title">User account created</h1>
+            <div class="govuk-panel__body">
+                An activation email has been sent to
+                <strong>{{ createdUser?.email }}</strong>
             </div>
-
         </div>
 
+        <h2 class="govuk-heading-m">What happens next</h2>
+        <p class="govuk-body">
+            The user needs to open the activation email and follow the link to set their password.
+            They can then sign in to the APIM Self-Service Portal.
+        </p>
+        <p class="govuk-body">
+            You can check or manage this account from the
+            <a class="govuk-link" routerLink="/admin/users">manage users page</a>.
+        </p>
+
+        @if (createdUser; as user) {
+        <h2 class="govuk-heading-m">Account details</h2>
+        <dl class="govuk-summary-list">
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Full name</dt>
+                <dd class="govuk-summary-list__value">{{ user.displayName }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Email address</dt>
+                <dd class="govuk-summary-list__value">{{ user.email }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Account reference</dt>
+                <dd class="govuk-summary-list__value">{{ user.id }}</dd>
+            </div>
+            <div class="govuk-summary-list__row">
+                <dt class="govuk-summary-list__key">Status</dt>
+                <dd class="govuk-summary-list__value">{{ displayUserStatus(user.status) }}</dd>
+            </div>
+        </dl>
         }
 
-        @if (created) {
-        <div class="govuk-notification-banner
-         govuk-notification-banner--success">
+        <button type="button" class="govuk-button" (click)="startOver()">
+            Create another user
+        </button>
+        }
 
-            <div class="govuk-notification-banner__header">
+        @if (failed) {
+        <div role="alert">
+            <h1 class="govuk-heading-xl">Something went wrong</h1>
+            <p class="govuk-body">
+                The user account could not be created. Please try again.
+            </p>
 
-                <h2 class="govuk-notification-banner__title">
-
-                    Success
-
-                </h2>
-
-            </div>
-
-            <div class="govuk-notification-banner__content">
-
-                <p class="govuk-notification-banner__heading">
-
-                    The user account has been created.
-
-                </p>
-
-                <p class="govuk-body">
-
-                    An activation email has been sent.
-
-                </p>
-
-            </div>
-
+            <button type="button" class="govuk-button" (click)="retry()">
+                Try again
+            </button>
         </div>
+        }
 
+        @if (!created && !failed) {
+        @if (validationFailed) {
+        <div class="govuk-error-summary" data-module="govuk-error-summary">
+            <div role="alert">
+                <h2 class="govuk-error-summary__title">There is a problem</h2>
+                <div class="govuk-error-summary__body">
+                    <p class="govuk-body">Check the following fields:</p>
+                    <ul class="govuk-list govuk-error-summary__list">
+                        @if (form.controls.email.hasError('required')) {
+                        <li><a href="#email">Enter an email address</a></li>
+                        } @else if (form.controls.email.hasError('email')) {
+                        <li><a href="#email">Enter an email address in the correct format</a></li>
+                        }
+                        @if (form.controls.firstName.hasError('required')) {
+                        <li><a href="#firstName">Enter a first name</a></li>
+                        }
+                        @if (form.controls.lastName.hasError('required')) {
+                        <li><a href="#lastName">Enter a last name</a></li>
+                        }
+                        @if (form.controls.approvalReference.hasError('required')) {
+                        <li><a href="#approvalReference">Enter an approval reference</a></li>
+                        }
+                        @if (form.controls.reason.hasError('required')) {
+                        <li><a href="#reason">Enter a reason</a></li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
         }
 
         <h1 class="govuk-heading-xl">
@@ -81,30 +109,69 @@
 
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
-            <div class="govuk-form-group">
-
+            <div class="govuk-form-group" [class.govuk-form-group--error]="
+                form.controls.email.invalid && form.controls.email.touched
+            ">
                 <label class="govuk-label govuk-label--m" for="email">
-
-                    Email address
-
+                    Email address (required)
                 </label>
-
-                <input id="email" name="email" type="email" autocomplete="off" class="govuk-input govuk-input--width-30"
+                @if (form.controls.email.invalid && form.controls.email.touched) {
+                <p id="email-error" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span>
+                    @if (form.controls.email.hasError('required')) {
+                    Enter an email address
+                    } @else {
+                    Enter an email address in the correct format
+                    }
+                </p>
+                }
+                <input id="email" name="email" type="email" autocomplete="email"
+                    class="govuk-input govuk-input--width-30"
+                    [class.govuk-input--error]="form.controls.email.invalid && form.controls.email.touched"
+                    [attr.aria-describedby]="form.controls.email.invalid && form.controls.email.touched ? 'email-error' : null"
+                    [attr.aria-invalid]="form.controls.email.invalid && form.controls.email.touched"
+                    required
                     formControlName="email">
-
             </div>
 
-            <div class="govuk-form-group">
-
-                <label class="govuk-label govuk-label--m" for="displayName">
-
-                    Full name
-
+            <div class="govuk-form-group" [class.govuk-form-group--error]="
+                form.controls.firstName.invalid && form.controls.firstName.touched
+            ">
+                <label class="govuk-label govuk-label--m" for="firstName">
+                    First name (required)
                 </label>
+                @if (form.controls.firstName.invalid && form.controls.firstName.touched) {
+                <p id="firstName-error" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> Enter a first name
+                </p>
+                }
+                <input id="firstName" name="firstName" type="text" autocomplete="given-name"
+                    class="govuk-input govuk-input--width-30"
+                    [class.govuk-input--error]="form.controls.firstName.invalid && form.controls.firstName.touched"
+                    [attr.aria-describedby]="form.controls.firstName.invalid && form.controls.firstName.touched ? 'firstName-error' : null"
+                    [attr.aria-invalid]="form.controls.firstName.invalid && form.controls.firstName.touched"
+                    required
+                    formControlName="firstName">
+            </div>
 
-                <input id="displayName" name="displayName" type="text" class="govuk-input govuk-input--width-30"
-                    formControlName="displayName">
-
+            <div class="govuk-form-group" [class.govuk-form-group--error]="
+                form.controls.lastName.invalid && form.controls.lastName.touched
+            ">
+                <label class="govuk-label govuk-label--m" for="lastName">
+                    Last name (required)
+                </label>
+                @if (form.controls.lastName.invalid && form.controls.lastName.touched) {
+                <p id="lastName-error" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> Enter a last name
+                </p>
+                }
+                <input id="lastName" name="lastName" type="text" autocomplete="family-name"
+                    class="govuk-input govuk-input--width-30"
+                    [class.govuk-input--error]="form.controls.lastName.invalid && form.controls.lastName.touched"
+                    [attr.aria-describedby]="form.controls.lastName.invalid && form.controls.lastName.touched ? 'lastName-error' : null"
+                    [attr.aria-invalid]="form.controls.lastName.invalid && form.controls.lastName.touched"
+                    required
+                    formControlName="lastName">
             </div>
 
             <fieldset class="govuk-fieldset">
@@ -112,20 +179,22 @@
                 <legend class="govuk-fieldset__legend
                  govuk-fieldset__legend--m">
 
-                    Role
+                    Role (required)
 
                 </legend>
+
+                <p class="govuk-hint">Choose a role for this account.</p>
 
                 <div class="govuk-radios">
 
                     <div class="govuk-radios__item">
 
-                        <input class="govuk-radios__input" id="role-user" name="role" type="radio" value="User"
-                            formControlName="role">
+                        <input class="govuk-radios__input" id="role-api-developer" name="role" type="radio" value="API Developer"
+                            required formControlName="role">
 
-                        <label class="govuk-label govuk-radios__label" for="role-user">
+                        <label class="govuk-label govuk-radios__label" for="role-api-developer">
 
-                            User
+                            API Developer
 
                         </label>
 
@@ -133,12 +202,38 @@
 
                     <div class="govuk-radios__item">
 
-                        <input class="govuk-radios__input" id="role-administrator" name="role" type="radio"
-                            value="Administrator" formControlName="role">
+                        <input class="govuk-radios__input" id="role-api-maintainer" name="role" type="radio"
+                            value="API Maintainer" required formControlName="role">
 
-                        <label class="govuk-label govuk-radios__label" for="role-administrator">
+                        <label class="govuk-label govuk-radios__label" for="role-api-maintainer">
 
-                            Administrator
+                            API Maintainer
+
+                        </label>
+
+                    </div>
+
+                    <div class="govuk-radios__item">
+
+                        <input class="govuk-radios__input" id="role-icc-administrator" name="role" type="radio"
+                            value="ICC Administrator" required formControlName="role">
+
+                        <label class="govuk-label govuk-radios__label" for="role-icc-administrator">
+
+                            ICC Administrator
+
+                        </label>
+
+                    </div>
+
+                    <div class="govuk-radios__item">
+
+                        <input class="govuk-radios__input" id="role-read-only" name="role" type="radio"
+                            value="Read only" required formControlName="role">
+
+                        <label class="govuk-label govuk-radios__label" for="role-read-only">
+
+                            Read only
 
                         </label>
 
@@ -148,11 +243,13 @@
 
             </fieldset>
 
-            <div class="govuk-form-group govuk-!-margin-top-6">
+            <div class="govuk-form-group govuk-!-margin-top-6" [class.govuk-form-group--error]="
+                form.controls.approvalReference.invalid && form.controls.approvalReference.touched
+            ">
 
                 <label class="govuk-label govuk-label--m" for="approvalReference">
 
-                    Approval reference
+                    Approval reference (required)
 
                 </label>
 
@@ -161,21 +258,43 @@
                     or governance reference.
                 </div>
 
+                @if (form.controls.approvalReference.invalid && form.controls.approvalReference.touched) {
+                <p id="approvalReference-error" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> Enter an approval reference
+                </p>
+                }
+
                 <input id="approvalReference" name="approvalReference" type="text"
-                    class="govuk-input govuk-input--width-20" formControlName="approvalReference">
+                    class="govuk-input govuk-input--width-20"
+                    [class.govuk-input--error]="form.controls.approvalReference.invalid && form.controls.approvalReference.touched"
+                    [attr.aria-describedby]="form.controls.approvalReference.invalid && form.controls.approvalReference.touched ? 'approvalReference-error' : null"
+                    [attr.aria-invalid]="form.controls.approvalReference.invalid && form.controls.approvalReference.touched"
+                    required
+                    formControlName="approvalReference">
 
             </div>
 
-            <div class="govuk-form-group">
+            <div class="govuk-form-group" [class.govuk-form-group--error]="
+                form.controls.reason.invalid && form.controls.reason.touched
+            ">
 
                 <label class="govuk-label govuk-label--m" for="reason">
 
-                    Reason
+                    Reason (required)
 
                 </label>
 
-                <textarea id="reason" name="reason" rows="4" class="govuk-textarea" formControlName="reason">
-        </textarea>
+                @if (form.controls.reason.invalid && form.controls.reason.touched) {
+                <p id="reason-error" class="govuk-error-message">
+                    <span class="govuk-visually-hidden">Error:</span> Enter a reason
+                </p>
+                }
+
+                <textarea id="reason" name="reason" rows="4" class="govuk-textarea"
+                    [class.govuk-textarea--error]="form.controls.reason.invalid && form.controls.reason.touched"
+                    [attr.aria-describedby]="form.controls.reason.invalid && form.controls.reason.touched ? 'reason-error' : null"
+                    [attr.aria-invalid]="form.controls.reason.invalid && form.controls.reason.touched"
+                    required formControlName="reason"></textarea>
 
             </div>
 
@@ -190,6 +309,7 @@
             </button>
 
         </form>
+        }
 
     </div>
 

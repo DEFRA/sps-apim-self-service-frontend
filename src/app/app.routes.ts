@@ -39,6 +39,18 @@ export const routes: Routes = [
     },
 
     {
+        path: 'request-access',
+
+        loadComponent: () =>
+            import(
+                './features/account/request-access/request-access.component'
+            ).then(
+                module =>
+                    module.RequestAccessComponent
+            )
+    },
+
+    {
         path: 'activate',
 
         loadComponent: () =>
@@ -86,6 +98,22 @@ export const routes: Routes = [
             ).then(
                 module =>
                     module.ManageUsersComponent
+            )
+    },
+    {
+        path: 'admin/users/:userId/access',
+
+        canActivate: [
+            authGuard,
+            adminGuard
+        ],
+
+        loadComponent: () =>
+            import(
+                './features/admin/users/manage-access/manage-access.component'
+            ).then(
+                module =>
+                    module.ManageAccessComponent
             )
     },
     {
@@ -138,6 +166,40 @@ export const routes: Routes = [
             ).then(
                 module =>
                     module.AdminComponent
+            )
+    },
+
+    {
+        path: 'admin/access-requests',
+
+        canActivate: [
+            authGuard,
+            adminGuard
+        ],
+
+        loadComponent: () =>
+            import(
+                './features/admin/access-requests/access-requests.component'
+            ).then(
+                module =>
+                    module.AccessRequestsComponent
+            )
+    },
+
+    {
+        path: 'admin/access-requests/:requestId',
+
+        canActivate: [
+            authGuard,
+            adminGuard
+        ],
+
+        loadComponent: () =>
+            import(
+                './features/admin/access-requests/access-requests.component'
+            ).then(
+                module =>
+                    module.AccessRequestsComponent
             )
     },
 

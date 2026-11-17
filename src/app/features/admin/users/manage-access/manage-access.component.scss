@@ -1,0 +1,35 @@
+@use "govuk-frontend/dist/govuk" as *;
+
+.govuk-back-link-wrapper {
+  margin-bottom: govuk-spacing(3);
+}
+
+.user-summary {
+  max-width: 40rem;
+  margin-bottom: govuk-spacing(6);
+}
+
+.account-actions {
+  padding: govuk-spacing(4);
+  margin-bottom: govuk-spacing(6);
+  background-color: govuk-colour("light-grey");
+}
+
+.account-actions .govuk-button:last-child {
+  margin-bottom: 0;
+}
+
+.access-history {
+  margin-top: govuk-spacing(8);
+  padding-top: govuk-spacing(5);
+  border-top: 1px solid $govuk-border-colour;
+}
+
+.access-history__list {
+  padding-left: govuk-spacing(4);
+}
+
+.access-history__list li {
+  padding-bottom: govuk-spacing(3);
+  border-bottom: 1px solid $govuk-border-colour;
+}

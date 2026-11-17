@@ -1,0 +1,13 @@
+@use "govuk-frontend/dist/govuk" as *;
+
+.govuk-back-link-wrapper {
+  margin-bottom: govuk-spacing(3);
+}
+
+.govuk-textarea {
+  max-width: 32rem;
+}
+
+.govuk-radios__hint {
+  max-width: 32rem;
+}

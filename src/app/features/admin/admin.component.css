@@ -1,0 +1,83 @@
+.admin-page {
+  width: 100%;
+}
+
+.admin-page__header {
+  max-width: 42rem;
+  margin-bottom: 35px;
+}
+
+.admin-page__header .govuk-heading-xl {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.admin-page__intro {
+  max-width: 38rem;
+  margin-bottom: 0;
+}
+
+.admin-page__cards {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.admin-page__cards > [class*="govuk-grid-column-"] {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 25px;
+}
+
+.app-admin-card {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 230px;
+  padding: 20px;
+  border: 1px solid #b1b4b6;
+  border-top: 5px solid #4c2c92;
+  background-color: #ffffff;
+  margin-bottom: 25px;
+}
+
+.app-admin-card .govuk-heading-m {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.app-admin-card .govuk-body {
+  max-width: 28rem;
+}
+
+.app-admin-card__status {
+  margin-top: auto;
+  margin-bottom: 0;
+  padding-top: 15px;
+}
+
+.admin-page__responsibilities {
+  max-width: 42rem;
+  margin-top: 10px;
+  padding-top: 25px;
+  border-top: 1px solid #b1b4b6;
+}
+
+@media (max-width: 40.0525em) {
+  .admin-page__header {
+    margin-bottom: 25px;
+  }
+
+  .admin-page__cards > [class*="govuk-grid-column-"] {
+    margin-bottom: 15px;
+  }
+
+  .app-admin-card {
+    padding: 15px;
+  }
+
+  .admin-page__responsibilities {
+    margin-top: 5px;
+    padding-top: 20px;
+  }
+}

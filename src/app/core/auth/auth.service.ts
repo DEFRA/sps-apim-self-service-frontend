@@ -55,7 +55,10 @@ export class AuthService {
     computed(() =>
       this.state()
         ?.roles
-        .includes('Administrator')
+        .some(role =>
+          role === 'Administrator' ||
+          role === 'ICC Administrator'
+        )
         ?? false
     );
 

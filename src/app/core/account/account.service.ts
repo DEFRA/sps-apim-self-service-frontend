@@ -20,6 +20,7 @@ import {
 } from './account.models';
 
 import {
+  AccessRequestRequest,
   ActivateAccountRequest,
   CompletePasswordResetRequest,
   CreateUserRequest,
@@ -27,7 +28,13 @@ import {
   ReissueActivationRequest,
   ReissueActivationResponse,
   RequestPasswordResetRequest,
-  RequestPasswordResetResponse
+  RequestPasswordResetResponse,
+  UpdateUserAccessRequest,
+  UserAccessDetails,
+  ProjectOption,
+  AccessRequestSummary,
+  AccessRequestDecision,
+  AdminDashboardSummary
 } from './account.models';
 
 @Injectable({
@@ -55,22 +62,6 @@ export class AccountService {
 
     );
   }
-
-  // reissueActivation(
-  //   userId: string,
-  //   request: ReissueActivationRequest
-  // ) {
-  //   return this.csrf.refresh().pipe(
-
-  //     switchMap(() =>
-  //       this.http.post<ReissueActivationResponse>(
-  //         `/api/admin/users/${userId}/activation/reissue`,
-  //         request
-  //       )
-  //     )
-
-  //   );
-  // }
 
   activate(
     request: ActivateAccountRequest
@@ -102,6 +93,57 @@ export class AccountService {
     );
   }
 
+  submitAccessRequest(request: AccessRequestRequest) {
+    return this.csrf.refresh().pipe(
+      switchMap(() =>
+        this.http.post<void>(
+          '/api/account/access-request',
+          request
+        )
+      )
+    );
+  }
+
+  getAccessRequests() {
+    return this.http.get<AccessRequestSummary[]>(
+      '/api/admin/access-requests'
+    );
+  }
+
+  getAccessRequest(requestId: string) {
+    return this.http.get<AccessRequestSummary>(
+      `/api/admin/access-requests/${requestId}`
+    );
+  }
+
+  recordAccessRequestDecision(requestId: string, decision: AccessRequestDecision) {
+    return this.csrf.refresh().pipe(
+      switchMap(() =>
+        this.http.post<AccessRequestSummary>(
+          `/api/admin/access-requests/${requestId}/decision`,
+          decision
+        )
+      )
+    );
+  }
+
+  sendAccessDecisionEmail(requestId: string) {
+    return this.csrf.refresh().pipe(
+      switchMap(() =>
+        this.http.post<void>(
+          `/api/admin/access-requests/${requestId}/decision-email`,
+          {}
+        )
+      )
+    );
+  }
+
+  getAdminDashboardSummary() {
+    return this.http.get<AdminDashboardSummary>(
+      '/api/admin/dashboard-summary'
+    );
+  }
+
   getUsers() {
 
   return this.http.get<UserSummary[]>(
@@ -110,16 +152,42 @@ export class AccountService {
 
 }
 
+getProjects() {
+  return this.http.get<ProjectOption[]>(
+    '/api/admin/users/projects'
+  );
+}
+
+getUserAccess(userId: string) {
+  return this.http.get<UserAccessDetails>(
+    `/api/admin/users/${userId}/access`
+  );
+}
+
+updateUserAccess(
+  userId: string,
+  request: UpdateUserAccessRequest
+) {
+  return this.csrf.refresh().pipe(
+    switchMap(() =>
+      this.http.put<void>(
+        `/api/admin/users/${userId}/access`,
+        request
+      )
+    )
+  );
+}
+
 reissueActivation(
   userId: string
 ) {
-
-  return this.http.post(
-    `/api/admin/users/${userId}/activation/reissue`,
-    {
-      reason:
-        'Activation link expired'
-    }
+  return this.csrf.refresh().pipe(
+    switchMap(() =>
+      this.http.post<ReissueActivationResponse>(
+        `/api/admin/users/${userId}/activation/reissue`,
+        { reason: 'Activation link expired' } satisfies ReissueActivationRequest
+      )
+    )
   );
 
 }
@@ -128,9 +196,13 @@ unlockUser(
   userId: string
 ) {
 
-  return this.http.post(
-    `/api/admin/users/${userId}/unlock`,
-    {}
+  return this.csrf.refresh().pipe(
+    switchMap(() =>
+      this.http.post<void>(
+        `/api/admin/users/${userId}/unlock`,
+        {}
+      )
+    )
   );
 
 }
@@ -139,13 +211,17 @@ disableUser(
   userId: string
 ) {
 
-  return this.http.post(
-    `/api/admin/users/${userId}/disable`,
-    {
-      reason:
-        'Disabled by administrator'
-    }
-  );
+    return this.csrf.refresh().pipe(
+      switchMap(() =>
+        this.http.post(
+          `/api/admin/users/${userId}/disable`,
+          {
+            reason:
+              'Disabled by administrator'
+          }
+        )
+      )
+    );
 
 }
 
@@ -153,13 +229,17 @@ enableUser(
   userId: string
 ) {
 
-  return this.http.post(
-    `/api/admin/users/${userId}/enable`,
-    {
-      reason:
-        'Enabled by administrator'
-    }
-  );
+    return this.csrf.refresh().pipe(
+      switchMap(() =>
+        this.http.post(
+          `/api/admin/users/${userId}/enable`,
+          {
+            reason:
+              'Enabled by administrator'
+          }
+        )
+      )
+    );
 
 }
 

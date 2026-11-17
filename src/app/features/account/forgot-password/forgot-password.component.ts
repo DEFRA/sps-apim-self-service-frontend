@@ -45,6 +45,10 @@ export class ForgotPasswordComponent {
 
   submitting = false;
 
+  requestFailed = false;
+
+  validationFailed = false;
+
   readonly form =
     this.formBuilder.nonNullable.group({
 
@@ -60,13 +64,20 @@ export class ForgotPasswordComponent {
 
   submit(): void {
 
+    this.form.controls.email.setValue(
+      this.form.controls.email.value.trim()
+    );
+
     if (this.form.invalid) {
 
       this.form.markAllAsTouched();
+      this.validationFailed = true;
 
       return;
     }
 
+    this.validationFailed = false;
+    this.requestFailed = false;
     this.submitting = true;
 
     this.accountService
@@ -86,6 +97,7 @@ export class ForgotPasswordComponent {
         error: () => {
 
           this.submitting = false;
+          this.requestFailed = true;
 
         }
 

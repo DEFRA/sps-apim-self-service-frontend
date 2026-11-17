@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   inject
 } from '@angular/core';
@@ -10,8 +11,16 @@ import {
 } from '@angular/forms';
 
 import {
+  RouterLink
+} from '@angular/router';
+
+import {
   AccountService
 } from '../../../../core/account/account.service';
+
+import {
+  CreateUserResponse
+} from '../../../../core/account/account.models';
 
 @Component({
   selector: 'app-create-user',
@@ -19,7 +28,8 @@ import {
   standalone: true,
 
   imports: [
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    RouterLink
   ],
 
   templateUrl:
@@ -33,11 +43,40 @@ export class CreateUserComponent {
   private readonly accountService =
     inject(AccountService);
 
+  private readonly changeDetector =
+    inject(ChangeDetectorRef);
+
   submitting = false;
 
   failed = false;
 
   created = false;
+
+  validationFailed = false;
+
+  createdUser: CreateUserResponse | null = null;
+
+  startOver(): void {
+    this.form.reset();
+    this.createdUser = null;
+    this.created = false;
+    this.validationFailed = false;
+  }
+
+  retry(): void {
+    this.failed = false;
+  }
+
+  displayUserStatus(status: string): string {
+    switch (status) {
+      case 'PendingActivation':
+        return 'Pending activation';
+      case 'Active':
+        return 'Active';
+      default:
+        return status;
+    }
+  }
 
   readonly form =
     this.formBuilder.nonNullable.group({
@@ -50,13 +89,18 @@ export class CreateUserComponent {
         ]
       ],
 
-      displayName: [
+      firstName: [
+        '',
+        Validators.required
+      ],
+
+      lastName: [
         '',
         Validators.required
       ],
 
       role: [
-        'User' as 'User' | 'Administrator',
+        'API Developer' as 'API Developer' | 'API Maintainer' | 'ICC Administrator' | 'Read only',
         Validators.required
       ],
 
@@ -74,13 +118,31 @@ export class CreateUserComponent {
 
   submit(): void {
 
+    this.form.controls.email.setValue(
+      this.form.controls.email.value.trim()
+    );
+    this.form.controls.firstName.setValue(
+      this.form.controls.firstName.value.trim()
+    );
+    this.form.controls.lastName.setValue(
+      this.form.controls.lastName.value.trim()
+    );
+    this.form.controls.reason.setValue(
+      this.form.controls.reason.value.trim()
+    );
+    this.form.controls.approvalReference.setValue(
+      this.form.controls.approvalReference.value.trim()
+    );
+
     if (this.form.invalid) {
 
       this.form.markAllAsTouched();
+      this.validationFailed = true;
 
       return;
     }
 
+    this.validationFailed = false;
     this.submitting = true;
 
     this.failed = false;
@@ -97,7 +159,7 @@ export class CreateUserComponent {
           values.email,
 
         displayName:
-          values.displayName,
+          `${values.firstName} ${values.lastName}`,
 
         role:
           values.role,
@@ -117,7 +179,11 @@ export class CreateUserComponent {
 
           this.submitting = false;
 
+          this.createdUser = response;
+
           this.created = true;
+
+          this.changeDetector.markForCheck();
         },
 
         error: () => {
@@ -126,6 +192,7 @@ export class CreateUserComponent {
 
           this.failed = true;
 
+          this.changeDetector.markForCheck();
         }
 
       });
