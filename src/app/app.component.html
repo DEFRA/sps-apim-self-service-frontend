@@ -41,7 +41,7 @@
 <!-- SERVICE NAVIGATION                                    -->
 <!-- ===================================================== -->
 
-@if (auth.session()) {
+
 <section class="govuk-service-navigation" aria-label="Service information" data-module="govuk-service-navigation">
 
   <div class="govuk-width-container">
@@ -53,7 +53,7 @@
           API Management Self-Service Portal
         </a>
       </span>
-
+      @if (auth.session()) {
       <nav class="govuk-service-navigation__wrapper" aria-label="Service navigation">
 
         <ul class="govuk-service-navigation__list">
@@ -100,7 +100,7 @@
         </ul>
 
       </nav>
-
+      }
       @if (auth.session(); as session) {
       <div class="app-service-account">
         <span class="app-service-account__user">
@@ -117,7 +117,7 @@
   </div>
 
 </section>
-}
+
 
 <!-- ===================================================== -->
 <!-- MAIN CONTENT                                          -->
