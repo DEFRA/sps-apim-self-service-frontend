@@ -4,7 +4,7 @@
         "build": "ng build",
         "test": "ng test",
         "test:proxy": "node --test deploy/server.test.js",
-        "test:ci": "ng test --watch=false --code-coverage"
+        "test:ci": "ng test --watch=false"
     },
     "dependencies": {
         "@angular/common": "^22.2.3",
