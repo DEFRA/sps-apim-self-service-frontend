@@ -12,7 +12,7 @@
 .account-actions {
   padding: govuk-spacing(4);
   margin-bottom: govuk-spacing(6);
-  background-color: govuk-colour("light-grey");
+  background-color: govuk-colour("black", $variant: "tint-95");
 }
 
 .account-actions .govuk-button:last-child {
