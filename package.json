@@ -2,8 +2,9 @@
     "scripts": {
         "start": "ng serve --proxy-config proxy.conf.json",
         "build": "ng build",
-        "test": "node ./node_modules/@angular/cli/bin/ng.js test",
-        "test:proxy": "node --test deploy/server.test.js"
+        "test": "ng test",
+        "test:proxy": "node --test deploy/server.test.js",
+        "test:ci": "ng test --watch=false --code-coverage"
     },
     "dependencies": {
         "@angular/common": "^22.2.3",
@@ -21,6 +22,7 @@
         "@angular/build": "^22.2.3",
         "@angular/cli": "^22.2.3",
         "@angular/compiler-cli": "^22.2.3",
+        "@vitest/coverage-v8": "^4.0.8",
         "jsdom": "^27.1.0",
         "sass": "^1.106.1",
         "typescript": "~6.0.2",

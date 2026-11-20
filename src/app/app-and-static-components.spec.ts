@@ -51,10 +51,28 @@ describe('AppComponent', () => {
     expect(auth.initialise).toHaveBeenCalledOnce();
   });
 
-  it('hides the service navigation when signed out', () => {
+  it('shows the service navigation but hides menus when signed out', () => {
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('.govuk-service-navigation')).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.govuk-service-navigation')
+    ).not.toBeNull();
+
+    expect(
+      fixture.nativeElement.querySelector('a[href="/dashboard"]')
+    ).toBeNull();
+
+    expect(
+      fixture.nativeElement.querySelector('a[href="/admin"]')
+    ).toBeNull();
+
+    expect(
+      fixture.nativeElement.querySelector('a[href="/admin/users"]')
+    ).toBeNull();
+
+    expect(
+      fixture.nativeElement.querySelector('a[href="/admin/users/create"]')
+    ).toBeNull();
   });
 
   it('shows Home and Dashboard after sign-in but no Admin menu for a regular user', () => {

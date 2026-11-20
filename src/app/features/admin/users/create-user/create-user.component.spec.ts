@@ -3,6 +3,7 @@ import { of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AccountService } from '../../../../core/account/account.service';
 import { CreateUserComponent } from './create-user.component';
+import { provideRouter, ActivatedRoute } from '@angular/router';
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -15,7 +16,21 @@ describe('CreateUserComponent', () => {
     account = { createUser: vi.fn() };
     TestBed.configureTestingModule({
       imports: [CreateUserComponent],
-      providers: [{ provide: AccountService, useValue: account }]
+      providers: [
+        provideRouter([]),
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {},
+            params: of({}),
+            queryParams: of({})
+          }
+        },
+        {
+          provide: AccountService,
+          useValue: account
+        }
+      ]
     });
     await TestBed.compileComponents();
     fixture = TestBed.createComponent(CreateUserComponent);
@@ -162,7 +177,9 @@ describe('CreateUserComponent', () => {
 
     component.retry();
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('form')).not.toBeNull();
+
+    expect(component.failed).toBe(false);
+
     component.submit();
     await fixture.whenStable();
     fixture.detectChanges();

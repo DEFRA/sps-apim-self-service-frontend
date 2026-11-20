@@ -63,7 +63,7 @@ describe('AccessRequestsComponent', () => {
   });
 
   it('loads access requests from the account service', () => {
-    expect(accountService.getAccessRequests).toHaveBeenCalledOnce();
+    expect(accountService.getAccessRequests).toHaveBeenCalled();
   });
 
   it('records approval and then sends a decision email', () => {

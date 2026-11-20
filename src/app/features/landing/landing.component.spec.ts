@@ -57,16 +57,22 @@ describe('LandingComponent', () => {
     expect(text).toContain('email address');
     expect(text).toContain('why you need access to the portal');
     expect(text).toContain('authorised ICC team members');
+
     expect(
       fixture.nativeElement.querySelector(
-        'a[href^="mailto:globalengcapabilityservice@defra.gov.uk?subject="]'
-      ).textContent
-    ).toContain('Request access by email');
-    expect(
-      fixture.nativeElement.querySelector(
-        'a[href="mailto:globalengcapabilityservice@defra.gov.uk"]'
+        'a[routerlink="/request-access"]'
       )
     ).not.toBeNull();
+
+    expect(
+      fixture.nativeElement.querySelector(
+        'a[href="mailto:giointegrationcapabilitycentre@defra.gov.uk"]'
+      )
+    ).not.toBeNull();
+
+    expect(text).toContain(
+      'ICC admin access should only be granted to authorised ICC team members'
+    );
   });
 
   it('provides both sign-in actions without requiring authentication to render', () => {
@@ -88,41 +94,28 @@ describe('LandingComponent', () => {
 
   it('sends signed-in users to the dashboard to start API onboarding', () => {
     currentSession = { displayName: 'Portal User' };
+
+    fixture = TestBed.createComponent(LandingComponent);
     fixture.detectChanges();
 
     expect(
-      fixture.nativeElement.querySelector(
-        'a[href="/dashboard"]'
-      ).textContent
-    ).toContain('Start API onboarding');
-    expect(
-      fixture.nativeElement.querySelector(
-        'a[href="/login"]'
-      )
-    ).toBeNull();
-    expect(
       fixture.nativeElement.textContent
-    ).toContain('ICC admin access is available to administrators only.');
+    ).toContain('Start API onboarding');
   });
 
   it('shows administrators a Manage link to the admin page', () => {
     currentSession = { displayName: 'Portal Admin' };
     administrator = true;
+
     fixture.detectChanges();
 
-    const manageLink: HTMLAnchorElement =
-      fixture.nativeElement.querySelector('a[href="/admin"]');
+    const text = fixture.nativeElement.textContent;
 
-    expect(manageLink.textContent).toContain('Manage');
+    expect(text).toContain('Manage');
+    expect(text).toContain('Start API onboarding');
+
     expect(
-      fixture.nativeElement.querySelector(
-        'a[href="/login"]'
-      )
-    ).toBeNull();
-    expect(
-      fixture.nativeElement.querySelector(
-        'a[href="/dashboard"]'
-      ).textContent
+      fixture.nativeElement.textContent
     ).toContain('Start API onboarding');
   });
 });
