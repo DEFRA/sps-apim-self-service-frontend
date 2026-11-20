@@ -1,4 +1,5 @@
 @use "govuk-frontend/dist/govuk" as *;
+@use "govuk-frontend" as govuk;
 
 html {
   background-color: govuk-colour(
@@ -83,10 +84,6 @@ body {
   list-style: none;
 }
 
-.app-admin-menu__summary::-webkit-details-marker {
-  display: none;
-}
-
 .app-admin-menu__items {
   position: absolute;
   z-index: 1;
@@ -115,6 +112,49 @@ body {
 
 .app-service-account__user {
   color: $govuk-text-colour;
+}
+
+.app-admin-menu__summary {
+  color: #1d70b8;
+  cursor: pointer;
+  text-decoration: none;
+  list-style: none;
+  font-weight: 400;
+}
+
+.app-admin-menu__summary:hover {
+  color: #003078;
+  text-decoration: underline;
+}
+
+.app-admin-menu__summary:focus {
+  background: #fd0;
+  color: #0b0c0c;
+  outline: 3px solid transparent;
+  box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+}
+
+.app-admin-menu__summary {
+  color: #1d70b8;
+  cursor: pointer;
+  text-decoration: none;
+  list-style: none;
+  font-weight: 400;
+}
+
+.app-admin-menu__summary:hover {
+  color: #003078;
+  text-decoration: underline;
+}
+
+.app-admin-menu__summary:focus {
+  background: #fd0;
+  color: #0b0c0c;
+  outline: 3px solid transparent;
+  box-shadow: 0 -2px #fd0, 0 4px #0b0c0c;
+}
+.app-admin-menu__summary {
+  color: govuk.govuk-colour("blue");
 }
 
 .app-service-account__sign-out {

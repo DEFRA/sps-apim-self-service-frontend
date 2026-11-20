@@ -71,8 +71,9 @@
           </li>
 
           @if (auth.isAdministrator()) {
+
           <li class="govuk-service-navigation__item app-admin-menu">
-            <details>
+            <details #adminMenu (keydown.escape)="closeAdminMenu()" (focusout)="onAdminMenuFocusOut($event)">
               <summary class="govuk-service-navigation__link app-admin-menu__summary">
                 Admin
               </summary>
